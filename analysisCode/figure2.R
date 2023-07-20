@@ -1,7 +1,7 @@
 #!/usr/bin/Rscript
 
 #load custom functions & packages
-source("/pl/active/dow_lab/dylan/repos/K9-PBMC-scRNAseq/analysisCode/customFunctions.R")
+source("./customFunctions.R")
 
 #############################################################
 #######   subset and recluster on tumor/fibroblast   ########
@@ -271,7 +271,7 @@ ggsave(paste("./output/", outName, "/", outName, "_uMAP_by_ploidy.png", sep = ""
 
 ### Fig 2b: Create heatmap of defining feats
 #load in defining features determined using FinDAllMarkers
-all.markers <- read.csv("/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/viln/tumor/tumor_QCfiltered_3000_gene_list.csv")
+all.markers <- read.csv("./output/viln/tumor/tumor_QCfiltered_3000_gene_list.csv")
 key.genes <- all.markers[!grepl("ENSCAFG", row.names(all.markers)),] 
 key.genes.sortedByPval = key.genes[order(key.genes$p_val),]
 
@@ -411,7 +411,7 @@ ggsave(paste("./output/", outName, "/", outName, "_c6vc012_volcPlot.png", sep = 
 
 
 ### Fig extra: gsea of the DGE results
-p <- plotGSEA(pwdTOgeneList = "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/tumor_naive6/FIBROBLAST_vs_OSTEOBLAST_all_genes.csv", category = "C5", subcategory = NULL)
+p <- plotGSEA(pwdTOgeneList = "./output/tumor_naive6/FIBROBLAST_vs_OSTEOBLAST_all_genes.csv", category = "C5", subcategory = NULL)
 ggsave(paste("./output/", outName, "/", outName, "_enriched_terms_c6.png", sep = ""), width = 9, height =7)
 
 
@@ -425,7 +425,7 @@ ggsave(paste("./output/", outName, "/", outName, "_c4vc012_volcPlot.png", sep = 
 
 
 ### Fig extra: gsea of the DGE results
-p <- plotGSEA(pwdTOgeneList = "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/tumor_naive6/HYPOXIC_OSTEOBLAST_vs_OSTEOBLAST_all_genes.csv", category = "C5", subcategory = NULL)
+p <- plotGSEA(pwdTOgeneList = "./output/tumor_naive6/HYPOXIC_OSTEOBLAST_vs_OSTEOBLAST_all_genes.csv", category = "C5", subcategory = NULL)
 ggsave(paste("./output/", outName, "/", outName, "_enriched_terms_c4.png", sep = ""), width = 9.5, height =7)
 
 
