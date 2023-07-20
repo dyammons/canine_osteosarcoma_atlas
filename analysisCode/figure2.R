@@ -7,7 +7,7 @@ source("/pl/active/dow_lab/dylan/repos/K9-PBMC-scRNAseq/analysisCode/customFunct
 #######   subset and recluster on tumor/fibroblast   ########
 #############################################################
 
-#load in processed data and complete analysis on all cells
+#Load in processed data and complete analysis on all cells
 seu.obj <- readRDS(file = "./output/s3/naive6_QCfilter_2000Feats_res0.8_dims45_dist0.35_neigh40_S3.rds")
 seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "majorID")
 seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "freqID")
@@ -96,7 +96,7 @@ seu.obj <- dataVisUMAP(seu.obj = seu.obj.sub, outDir = "./output/s3/", outName =
 #######   begin tumor/fibroblast analysis   ########
 ####################################################
 
-#load
+#load in data
 seu.obj <- readRDS(file = "./output/s3/tumor_QCfiltered_2_3000_res0.5_dims40_dist0.5_neigh50_S3.rds")
 sorted_labels <- paste(sort(as.integer(levels(seu.obj$clusterID_sub))))
 seu.obj$clusterID_sub <- factor(seu.obj$clusterID_sub, levels = sorted_labels)
@@ -133,7 +133,7 @@ seu.obj$majorID_subWclus <- Idents(seu.obj)
 outName <- "tumor_naive6"
 
 
-### Fig extra data: Create violin plots for cell ID
+### Fig extra: Create violin plots for cell ID
 vilnPlots(seu.obj = seu.obj, groupBy = "clusterID_sub", numOfFeats = 24, outName = "tumor_QCfiltered_3000", outDir = "./output/viln/tumor/", outputGeneList = T, filterOutFeats = c("^MT-", "^RPL", "^ENSCAF", "^RPS"), assay = "RNA", 
                       min.pct = 0.25, only.pos = T
                      )
@@ -161,13 +161,13 @@ majorColors.df$labCol <- c("white","black","black","black",
 
 majorColors.df$labz <- levels(seu.obj$clusterID_sub)
 
-### Fig 2a/b - Create labels to be cropped onto UMAP
+### Fig 2a/b: Create labels to be cropped onto UMAP
 leg <- cusLeg(legend = majorColors.df, clusLabel = "labz",legLabel = "ClusterID", colorz = "colz",labCol = "labCol",colz = 1, rowz = NULL, groupLabel = "title", dotSize = 6, groupBy = "title",sortBy = "labz", compress_x = 1.25, topBuffer = 1.1, ymin = 0, compress_y = 4)
 
 ggsave(paste("./output/", outName, "/", outName, "_leg_forUMAP_labels.png", sep = ""), width = 3, height = 7)
 
 
-### Fig 2a - Create raw UMAP
+### Fig 2a: Create raw UMAP
 pi <- DimPlot(seu.obj, 
               reduction = "umap", 
               group.by = "clusterID_sub",
@@ -181,7 +181,7 @@ pi <- cusLabels(plot = pi, shape = 21, size = 10, alpha = 0.8, labCol = majorCol
 ggsave(paste("./output/", outName, "/", outName, "_rawUMAP.png", sep = ""), width = 7, height = 7)
 
 
-### Fig extra - Create raw UMAP with orig clusID
+### Fig extra: Create raw UMAP with orig clusID
 pi <- DimPlot(seu.obj, 
               reduction = "umap", 
               group.by = "clusterID",
@@ -194,7 +194,7 @@ pi <- cusLabels(plot = pi, shape = 21, size = 8, alpha = 0.8) + NoLegend()
 ggsave(paste("./output/", outName, "/", outName, "_rawUMAP_clusterID.png", sep = ""), width = 7, height = 7)
 
 
-### Fig extra - Create UMAP by sample
+### Fig extra: Create UMAP by sample
 pi <- DimPlot(seu.obj, 
               reduction = "umap", 
               group.by = "subtype",
@@ -210,7 +210,7 @@ pi <- formatUMAP(plot = pi) + NoLegend()
 ggsave(paste("./output/", outName, "/", outName, "_UMAPbySubtype.png", sep = ""), width = 7, height = 10.5)
 
 
-### Fig extra - Make stacked bar graph
+### Fig extra: Make stacked bar graph
 p <- stackedBar(seu.obj = seu.obj, downSampleBy = "name", groupBy = "name", 
                 clusters = "clusterID_sub") + scale_fill_manual(labels = levels(seu.obj$name), 
                                                                 values = levels(seu.obj$colz)
@@ -220,7 +220,7 @@ ggsave(file = paste("./output/", outName, "/", outName, "_stackedBar.png", sep =
 
 
 
-### Fig supp 2a - Search for fibs -- gene list from Azimuth_Cell_Types_2021
+### Fig supp 2a: Search for fibs -- gene list from Azimuth_Cell_Types_2021
 modulez <- list("Fibroblast" = c("FBLN1", "ADH1B", "DCN", "LUM", "C1S", "C1R", "SLIT2", "C3", "CFD", "ABLIM1"))
 
 seu.obj <- AddModuleScore(seu.obj, features = modulez, name = "_score")
@@ -238,7 +238,7 @@ ecScores <- majorDot(seu.obj = seu.obj, groupBy = "clusterID_sub",
 ggsave(paste("./output/", outName, "/", outName, "_fib_ecScore.png", sep = ""), width = 4, height=8)
 
 
-### Fig extra - Plot CopyKAT output on the subset data
+### Fig extra: plot CopyKAT output on the subset data
 #load in CopyKat classifications
 cellCounts <- read.csv("./output/copyKat_2/cnvStat.csv")
 cellCounts$X <- NULL
@@ -269,7 +269,7 @@ pi <- formatUMAP(pi) + theme(legend.position = c(0.01, 0.95)) #+ NoLegend()
 ggsave(paste("./output/", outName, "/", outName, "_uMAP_by_ploidy.png", sep = ""),width = 7,height=7)
 
 
-### Fig 2b - Create heatmap of defining feats
+### Fig 2b: Create heatmap of defining feats
 #load in defining features determined using FinDAllMarkers
 all.markers <- read.csv("/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/viln/tumor/tumor_QCfiltered_3000_gene_list.csv")
 key.genes <- all.markers[!grepl("ENSCAFG", row.names(all.markers)),] 
@@ -318,7 +318,7 @@ draw(ht, padding = unit(c(2, 7, 2, 7), "mm"), heatmap_legend_side = "top")
 dev.off()
 
 
-### Fig 2c - Create featplot of key feats
+### Fig 2c: Create featplot of key feats
 features <- c("ALPL","COL13A1","COL3A1","FBLN1","VEGFA","ACTA2" )
 
 p <- prettyFeats(seu.obj = seu.obj, nrow = 1, ncol = 6, features = features, 
@@ -326,7 +326,7 @@ p <- prettyFeats(seu.obj = seu.obj, nrow = 1, ncol = 6, features = features,
 ggsave(paste("./output/", outName, "/", outName, "_key_feats.png", sep = ""), width = 15, height = 3)
 
 
-### Fig supp - umap split by sample
+### Fig supp: umap split by sample
 seu.obj$orig.subtype <- paste0(seu.obj$name,"_",seu.obj$subtype)
 ### Create UMAP by sample
 pi <- DimPlot(seu.obj, 
@@ -344,7 +344,7 @@ pi <- formatUMAP(plot = pi) + NoLegend() + theme(axis.title = element_blank())
 ggsave(paste("./output/", outName, "/", outName, "_UMAPbySample.png", sep = ""), width = 7, height = 10.5)
 
 
-### Fig 2d - Complete gsea of tumor cell pops using singleseqgset
+### Fig 2d: Complete gsea of tumor cell pops using singleseqgset
 # can_gene_sets <- as.data.frame(msigdbr(species = "dog", category = "DSigDB"))
 # msigdbr_list <- split(x = can_gene_sets$gene_symbol, f = can_gene_sets$gs_name)
 # datas <- can_gene_sets %>% dplyr::distinct(gs_name, gene_symbol) %>% as.data.frame()
@@ -401,7 +401,7 @@ draw(ht, padding = unit(c(10, 10, 2, 30), "mm"), heatmap_legend_side = "left")
 dev.off()
 
 
-### Fig 2e - Comare gene expression between fibs and osteoblasts
+### Fig 2e: Comare gene expression between fibs and osteoblasts
 p_volc <- btwnClusDEG(seu.obj = seu.obj, groupBy = "clusterID_sub", idents.1 = "6", idents.2 = c('0',"1","2"), bioRep = "name",padj_cutoff = 0.05, lfcCut = 0.58, 
                         minCells = 25, outDir = paste0("./output/", outName, "/"), title = "c6_vs_c012", idents.1_NAME = "FIBROBLAST", idents.2_NAME = "OSTEOBLAST", returnVolc = T, doLinDEG = F, paired = T, addLabs = NULL, lowFilter = T, dwnSam = F, setSeed = 24
                     )
@@ -410,12 +410,12 @@ p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c6", leftLab = "Up in c0,
 ggsave(paste("./output/", outName, "/", outName, "_c6vc012_volcPlot.png", sep = ""), width = 7, height = 7)
 
 
-### Fig extra - gsea of the DGE results
-p <- plotGSEA(pwdTOgeneList = "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/tumor_naive6/c6_vs_c012_all_genes.csv", category = "C5", subcategory = NULL)
+### Fig extra: gsea of the DGE results
+p <- plotGSEA(pwdTOgeneList = "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/tumor_naive6/FIBROBLAST_vs_OSTEOBLAST_all_genes.csv", category = "C5", subcategory = NULL)
 ggsave(paste("./output/", outName, "/", outName, "_enriched_terms_c6.png", sep = ""), width = 9, height =7)
 
 
-### Fig 2e - Comare gene expression between hypoxic and non-hypoxic osteoblasts
+### Fig 2e: Comare gene expression between hypoxic and non-hypoxic osteoblasts
 p_volc <- btwnClusDEG(seu.obj = seu.obj, groupBy = "clusterID_sub", idents.1 = "4", idents.2 = c("0","1","2"), bioRep = "name",padj_cutoff = 0.05, lfcCut = 0.58, 
                         minCells = 25, outDir = paste0("./output/", outName, "/"), title = "c4_vs_c012", idents.1_NAME = "HYPOXIC_OSTEOBLAST", idents.2_NAME = "OSTEOBLAST", returnVolc = T, doLinDEG = F, paired = T, addLabs = NULL, lowFilter = T, dwnSam = F, setSeed = 24
                     )
@@ -424,12 +424,12 @@ p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c4", leftLab = "Up in c0,
 ggsave(paste("./output/", outName, "/", outName, "_c4vc012_volcPlot.png", sep = ""), width = 7, height = 7)
 
 
-### Fig extra - gsea of the DGE results
-p <- plotGSEA(pwdTOgeneList = "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/tumor_naive6/c4_vs_c012_all_genes.csv", category = "C5", subcategory = NULL)
+### Fig extra: gsea of the DGE results
+p <- plotGSEA(pwdTOgeneList = "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/tumor_naive6/HYPOXIC_OSTEOBLAST_vs_OSTEOBLAST_all_genes.csv", category = "C5", subcategory = NULL)
 ggsave(paste("./output/", outName, "/", outName, "_enriched_terms_c4.png", sep = ""), width = 9.5, height =7)
 
 
-### Fig extra - Comare gene expression between c4 and c1
+### Fig extra: Comare gene expression between c4 and c1
 p_volc <- btwnClusDEG(seu.obj = seu.obj, groupBy = "clusterID_sub", idents.1 = "4", idents.2 = "1", bioRep = "name",padj_cutoff = 0.05, lfcCut = 0.58, 
                         minCells = 25, outDir = paste0("./output/", outName, "/"), title = "c4_vs_c1", idents.1_NAME = "c4", idents.2_NAME = "c1", returnVolc = T, doLinDEG = F, paired = T, addLabs = NULL, lowFilter = T, dwnSam = F, setSeed = 24
                     )
@@ -438,7 +438,7 @@ p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c4", leftLab = "Up in c1"
 ggsave(paste("./output/", outName, "/", outName, "_c4vc1_volcPlot.png", sep = ""), width = 7, height = 7)
 
 
-### Fig extra - Comare gene expression between c0 and c1
+### Fig extra: Comare gene expression between c0 and c1
 p_volc <- btwnClusDEG(seu.obj = seu.obj, groupBy = "clusterID_sub", idents.1 = "0", idents.2 = "1", bioRep = "name",padj_cutoff = 0.05, lfcCut = 0.58, 
                         minCells = 25, outDir = paste0("./output/", outName, "/"), title = "c0_vs_c1", idents.1_NAME = "c0", idents.2_NAME = "c1", returnVolc = T, doLinDEG = F, paired = T, addLabs = NULL, lowFilter = T, dwnSam = F, setSeed = 24
                     )
@@ -446,7 +446,7 @@ p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c0", leftLab = "Up in c1"
 ggsave(paste("./output/", outName, "/", outName, "_c0vc1_volcPlot.png", sep = ""), width = 7, height = 7)
 
 
-### Fig extra - Comare gene expression between c2 and c1
+### Fig extra: Comare gene expression between c2 and c1
 p_volc <- btwnClusDEG(seu.obj = seu.obj, groupBy = "clusterID_sub", idents.1 = "2", idents.2 = "1", bioRep = "name",padj_cutoff = 0.05, lfcCut = 0.58, 
                         minCells = 25, outDir = paste0("./output/", outName, "/"), title = "c2_vs_c1", idents.1_NAME = "c2", idents.2_NAME = "c1", returnVolc = T, doLinDEG = F, paired = T, addLabs = NULL, lowFilter = T, dwnSam = F, setSeed = 24
                     )
