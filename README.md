@@ -20,11 +20,11 @@ If you have any questions or concerns, please submit an issue, contact the corre
 
 ## Supplemental data and potential uses:
 1. [Browse the data](#1-browse-the-complete-annotated-dataset)
-2. [Cell type annotations](#2-cell-type-annotations-with-defining-markers)
-3. [Reference Mapping](#3-using-the-data-to-complete-reference-mapping)
-4. [GSEA using dataset](#4-gene-set-enrichment-analysis)
-5. [Module scoring](#5-module-scoring)
-6. [CIBERSORTx](#6-cibersortx)
+1. [Cell type annotations](#2-cell-type-annotations-with-defining-markers)
+1. [Reference Mapping](#3-using-the-data-to-complete-reference-mapping)
+1. [GSEA using dataset](#4-gene-set-enrichment-analysis)
+1. [Module scoring](#5-module-scoring)
+1. [Deconvoloution](#6-deconvoloution-of-bulkRNA-seq-data)
 
 ### 1. Browse the complete annotated dataset
 
@@ -216,7 +216,7 @@ ecScores <- majorDot(seu.obj = seu.obj, groupBy = "clusterID_sub", scale = T,
 ggsave(paste("./output/", outName, "/", outName, "_dots_celltypes.png", sep = ""),width = 10,height=6)
 ```
 
-### 6. CIBERSORTx
+### 6. Deconvoloution of bulkRNA seq data
 
 Under development
 
