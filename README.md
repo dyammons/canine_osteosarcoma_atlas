@@ -5,7 +5,7 @@ This GitHub repository contains all the analysis code used in, "Single-cell RNA 
 The manuscript is currently under review and the GitHub page will be finalized by the time of publication.
 
 A pre-print is avalible at:
-> Ammons DT
+> https://www.researchsquare.com/article/rs-3232360/v1
 
 ## Repository goals: 
 - provide a resource to make the data generated from this project accessible
