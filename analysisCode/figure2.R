@@ -93,7 +93,7 @@ seu.obj <- dataVisUMAP(seu.obj = seu.obj.sub, outDir = "./output/s3/", outName =
 
 
 ####################################################
-#######   begin tumor/fibroblast analysis   ########
+#######   Begin tumor/fibroblast analysis   ########
 ####################################################
 
 #load in data
@@ -134,9 +134,10 @@ outName <- "tumor_naive6"
 
 
 ### Fig extra: Create violin plots for cell ID
-vilnPlots(seu.obj = seu.obj, groupBy = "clusterID_sub", numOfFeats = 24, outName = "tumor_QCfiltered_3000", outDir = "./output/viln/tumor/", outputGeneList = T, filterOutFeats = c("^MT-", "^RPL", "^ENSCAF", "^RPS"), assay = "RNA", 
+vilnPlots(seu.obj = seu.obj, groupBy = "clusterID_sub", numOfFeats = 24, outName = "tumor_QCfiltered_3000", outDir = "./output/viln/tumor/", outputGeneList = T, filterOutFeats = c("^MT-", "^RPL", "^RPS"), assay = "RNA", 
                       min.pct = 0.25, only.pos = T
                      )
+
 
 
 ### Fig extra: check QC parameters
@@ -177,8 +178,31 @@ pi <- DimPlot(seu.obj,
               label.box = TRUE,
               shuffle = TRUE
 )
-pi <- cusLabels(plot = pi, shape = 21, size = 10, alpha = 0.8, labCol = majorColors.df$labCol,  textSize = 5) + NoLegend()
+pi <- cusLabels(plot = pi, shape = 21, size = 10, alpha = 0.8, labCol = majorColors.df$labCol,  textSize = 5) + NoLegend() + theme(axis.title = element_blank(),
+                                                 panel.border = element_blank())
 ggsave(paste("./output/", outName, "/", outName, "_rawUMAP.png", sep = ""), width = 7, height = 7)
+
+
+axes <- ggplot() + labs(x = "UMAP1", y = "UMAP2") + 
+theme(axis.line = element_line(colour = "black", 
+                               arrow = arrow(angle = 30, length = unit(0.1, "inches"),
+                                             ends = "last", type = "closed"),
+                              ),
+      axis.title.y = element_text(colour = "black", size = 20),
+      axis.title.x = element_text(colour = "black", size = 20),
+      panel.border = element_blank(),
+      panel.background = element_rect(fill = "transparent",colour = NA),
+      plot.background = element_rect(fill = "transparent",colour = NA),
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank()
+     )
+
+p <- pi + inset_element(axes,left= 0,
+  bottom = 0,
+  right = 0.25,
+  top = 0.25,
+                       align_to = "full")
+ggsave(paste0("./output/", outName, "/", outName, "_rawUMAP.png"), width = 7, height = 7)
 
 
 ### Fig extra: Create raw UMAP with orig clusID
@@ -194,20 +218,34 @@ pi <- cusLabels(plot = pi, shape = 21, size = 8, alpha = 0.8) + NoLegend()
 ggsave(paste("./output/", outName, "/", outName, "_rawUMAP_clusterID.png", sep = ""), width = 7, height = 7)
 
 
+### Fig extra: Create UMAP by cell cycle score
+pi <- DimPlot(seu.obj, 
+              reduction = "umap", 
+              group.by = "Phase",
+              pt.size = 0.25,
+              label = TRUE,
+              label.box = TRUE,
+              shuffle = TRUE
+)
+pi <- formatUMAP(plot = pi) + NoLegend()
+ggsave(paste("./output/", outName, "/", outName, "_UMAP_phase.png", sep = ""), width = 7, height = 7)
+
+
 ### Fig extra: Create UMAP by sample
 pi <- DimPlot(seu.obj, 
               reduction = "umap", 
               group.by = "subtype",
               split.by = "orig.ident_2",
+              cols = levels(seu.obj$colz),
               pt.size = 0.25,
-              ncol = 2,
+              ncol = 3,
               label = F,
               label.box = F,
               shuffle = TRUE
 )
 
 pi <- formatUMAP(plot = pi) + NoLegend()
-ggsave(paste("./output/", outName, "/", outName, "_UMAPbySubtype.png", sep = ""), width = 7, height = 10.5)
+ggsave(paste("./output/", outName, "/", outName, "_UMAPbySample.png", sep = ""), width = 10.5, height = 7)
 
 
 ### Fig extra: Make stacked bar graph
@@ -221,7 +259,7 @@ ggsave(file = paste("./output/", outName, "/", outName, "_stackedBar.png", sep =
 
 
 ### Fig supp 2a: Search for fibs -- gene list from Azimuth_Cell_Types_2021
-modulez <- list("Fibroblast" = c("FBLN1", "ADH1B", "DCN", "LUM", "C1S", "C1R", "SLIT2", "C3", "CFD", "ABLIM1"))
+modulez <- list("FIBROBLAST_SIG" = c("FBLN1", "ADH1B", "DCN", "LUM", "C1S", "C1R", "SLIT2", "C3", "CFD", "ABLIM1"))
 
 seu.obj <- AddModuleScore(seu.obj, features = modulez, name = "_score")
 names(seu.obj@meta.data)[grep("_score", names(seu.obj@meta.data))] <- names(modulez)
@@ -230,12 +268,11 @@ features <- names(modulez)
 ecScores <- majorDot(seu.obj = seu.obj, groupBy = "clusterID_sub",
                      features = features
                     ) + theme(axis.title = element_blank(),
-                              axis.ticks.y = element_blank(),
                               legend.position = "right",
                               legend.direction = "vertical",
                              ) + guides(color = guide_colorbar(title = 'Scaled\nenrichment\nscore'))
 
-ggsave(paste("./output/", outName, "/", outName, "_fib_ecScore.png", sep = ""), width = 4, height=8)
+ggsave(paste("./output/", outName, "/", outName, "_fib_ecScore.png", sep = ""), width = 3.25, height=7)
 
 
 ### Fig extra: plot CopyKAT output on the subset data
@@ -272,7 +309,7 @@ ggsave(paste("./output/", outName, "/", outName, "_uMAP_by_ploidy.png", sep = ""
 ### Fig 2b: Create heatmap of defining feats
 #load in defining features determined using FinDAllMarkers
 all.markers <- read.csv("./output/viln/tumor/tumor_QCfiltered_3000_gene_list.csv")
-key.genes <- all.markers[!grepl("ENSCAFG", row.names(all.markers)),] 
+key.genes <- all.markers[!grepl("^ENSCAFG", all.markers$gene),] 
 key.genes.sortedByPval = key.genes[order(key.genes$p_val),]
 
 #sort and remove duplicate feats
@@ -379,6 +416,18 @@ res.pvals <- apply(res.pvals, 2, p.adjust, method="fdr") #Correct for multiple c
 mat <- scale(as.matrix(res.stats))
 rownames(mat) <- gsub("HALLMARK_", "", rownames(mat))
 
+
+colz <- majorColors.df$colz
+names(colz) <- as.character(majorColors.df$labz)
+ha = HeatmapAnnotation(
+    Cluster = colnames(mat),
+    border = TRUE,
+    col = list(Cluster = colz),
+    show_legend = c(Cluster = FALSE),
+    annotation_name_side = "none"
+)
+
+
 #plot the results in heatmap
 outfile <- paste("./output/", outName, "/", outName, "_heatMap_hallmarks.png", sep = "")
 png(file = outfile, width=4500, height=6000, res=400)
@@ -393,8 +442,10 @@ ht <- Heatmap(mat,
         row_dend_reorder = F,
         column_names_rot = 0, 
         column_names_side = "top",
+              column_names_gp = grid::gpar(fontsize = 16),
+              top_annotation = ha,
               col = colorRamp2(c(-2, 0, 2), rev(brewer.pal(n=3, name="RdYlBu"))),
-              heatmap_legend_param = list(title_position = "leftcenter-rot")
+              heatmap_legend_param = list(title_position = "leftcenter-rot", legend_height = unit(6, "cm"))
              )
 
 draw(ht, padding = unit(c(10, 10, 2, 30), "mm"), heatmap_legend_side = "left")
@@ -455,5 +506,5 @@ ggsave(paste("./output/", outName, "/", outName, "_c2vc1_volcPlot.png", sep = ""
 
 
 ##################################################
-#######   END tumor/fibroblast analysis   ########
+#######   End tumor/fibroblast analysis   ########
 ##################################################
