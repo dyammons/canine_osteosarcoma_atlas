@@ -449,7 +449,7 @@ p_volc <- btwnClusDEG(seu.obj = seu.obj, groupBy = "clusterID_sub", idents.1 = "
                         minCells = 25, outDir = paste0("../output/", outName, "/"), title = "c4_vs_c1", idents.1_NAME = "c4", idents.2_NAME = "c1", returnVolc = T, doLinDEG = F, paired = T, addLabs = NULL, lowFilter = T, dwnSam = F, setSeed = 24
                     )
 
-p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c4", leftLab = "Up in c1") + labs(x = "log2(FC) c4 vs c1")
+p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c4", leftLab = "Up in c1") + labs(x = "log2(FC) c4 vs c1") + NoLegend()
 ggsave(paste("../output/", outName, "/", outName, "_c4vc1_volcPlot.png", sep = ""), width = 7, height = 7)
 
 
@@ -457,7 +457,7 @@ ggsave(paste("../output/", outName, "/", outName, "_c4vc1_volcPlot.png", sep = "
 p_volc <- btwnClusDEG(seu.obj = seu.obj, groupBy = "clusterID_sub", idents.1 = "0", idents.2 = "1", bioRep = "name",padj_cutoff = 0.05, lfcCut = 0.58, 
                         minCells = 25, outDir = paste0("../output/", outName, "/"), title = "c0_vs_c1", idents.1_NAME = "c0", idents.2_NAME = "c1", returnVolc = T, doLinDEG = F, paired = T, addLabs = NULL, lowFilter = T, dwnSam = F, setSeed = 24
                     )
-p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c0", leftLab = "Up in c1") + labs(x = "log2(FC) c0 vs c1")
+p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c0", leftLab = "Up in c1") + labs(x = "log2(FC) c0 vs c1") + NoLegend()
 ggsave(paste("../output/", outName, "/", outName, "_c0vc1_volcPlot.png", sep = ""), width = 7, height = 7)
 
 
@@ -465,7 +465,7 @@ ggsave(paste("../output/", outName, "/", outName, "_c0vc1_volcPlot.png", sep = "
 p_volc <- btwnClusDEG(seu.obj = seu.obj, groupBy = "clusterID_sub", idents.1 = "2", idents.2 = "1", bioRep = "name",padj_cutoff = 0.05, lfcCut = 0.58, 
                         minCells = 25, outDir = paste0("../output/", outName, "/"), title = "c2_vs_c1", idents.1_NAME = "c2", idents.2_NAME = "c1", returnVolc = T, doLinDEG = F, paired = T, addLabs = NULL, lowFilter = T, dwnSam = F, setSeed = 24
                     )
-p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c2", leftLab = "Up in c1") + labs(x = "log2(FC) c2 vs c1")
+p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c2", leftLab = "Up in c1") + labs(x = "log2(FC) c2 vs c1") + NoLegend()
 ggsave(paste("../output/", outName, "/", outName, "_c2vc1_volcPlot.png", sep = ""), width = 7, height = 7)
 
 
