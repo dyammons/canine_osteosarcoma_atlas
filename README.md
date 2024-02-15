@@ -16,7 +16,7 @@ If you have any questions or concerns, please submit an issue, contact the corre
 
 ## File structure:
 - [:file\_folder: input](/input) contains relevant metadata files and instructions for obtaining data associated with this study
-- [:file\_folder: analysis](/analysis) contains the analysis code and source file used to complete the data analysis
+- [:file\_folder: analysisCode](/analysisCode) contains the analysis code and source file used to complete the data analysis
 
 ## Supplemental data and potential uses:
 1. [Browse the data](#1-browse-the-complete-annotated-dataset)
@@ -37,12 +37,10 @@ Link to UCSC Cell Browser documentation: https://cellbrowser.readthedocs.io/en/m
 
 ### 2. Cell type annotations with defining markers
 
-Cell markers lists will be curated for each cell type.
-
 <details open><summary>Cell types (High-resolution)</summary>
 <p>
 
-|Cell type     |                                |Marker                                        |
+|Cell type     |                                |Markers                                       |
 |--------------|--------------------------------|----------------------------------------------|
 |B cell        |                                |                                              |
 |              |B cell                          |PAX5, CD22, MS4A1, FCRLA, CCR7, IGHM          |
@@ -99,12 +97,13 @@ Cell markers lists will be curated for each cell type.
 ### 3. Using the data to complete reference mapping
 Reference mapping is useful tool to facilitate the identification of cell types in single cell datasets. The approach described here uses Seurat functions to identify anchors between a query dataset (external/personal data) and the reference datasets generated in this study.
 
-NOTE: this will be avalible at time of release on NCBI GEO.
+NOTE: this is designed to be run with Seurat v4. This may work with Seurat v5, but has not been tested yet. Additional code will be added if it does not work with Seurat v5.
 
-Before running the reference mapping code, a Seurat object need to be preprocessed and stored as an object named `seu.obj`.
+Before running the reference mapping code, a Seurat object need to be preprocessed and stored as an object named `seu.obj`.  
+The processed Seurat object to be loaded in as `reference` can be obtained by following the instructions in [:file\_folder: input](/input). 
 ```r
 #set the path to the location in which the reference file is saved
-reference <- readRDS(file = "../../k9_PBMC_scRNA/analysis/output/s3/final_dataSet_HvO.rds")
+reference <- readRDS(file = "./final_dataSet.rds")
 
 #prepare the reference
 reference[['integrated']] <- as(object = reference[['integrated']] , Class = "SCTAssay")
@@ -138,8 +137,6 @@ ggsave("./output/referenceMap.png", width = 7, height = 7)
 
 ### 4. Gene set enrichment analysis
 
-NOTE: this will be avalible at time of release on NCBI GEO.
-
 The data generated from this work have the potential to provide supporting evidence to evaluate/confirm the cell identity of sorted bulk RNA sequencing dataset. One approach to do this is to use gene set enrichment analysis (GSEA) with the terms representing the cell type identified in our dataset.
 
 Required input: a list of gene symbols that you wish to query. In this case the genelists are stored in a dataframe called `clus.markers`
@@ -156,8 +153,8 @@ Example data frame format:
 ```
 
 ```r
-#read in the one of the supplemntal data files provided with the publication
-geneLists <- read.csv(file = "./input/supplementalData_1.csv")
+#read in the one of the supplemental data files provided with the publication
+geneLists <- read.csv(file = "./input/supplementalData_1.csv") #check file name is correct
 
 #clean the reference
 datas <- geneLists[,c("cluster","gene")]
@@ -202,24 +199,21 @@ plot <- ggplot(data = cellCalls, mapping = aes_string(x = 'cluster', y = 'ID')) 
     coord_cartesian(expand = TRUE, clip = "off") +
     xlab("Sample") + ylab("GSEA term")
 
-#check path is correct
-ggsave("./output/gsea_scRNA_terms.png", width = 6, height = 4)
+ggsave("gsea_scRNA_terms.png", width = 6, height = 4)
 ```
 
 ### 5. Module scoring
 
-NOTE: this will be avalible at time of release on NCBI GEO.
-
-Module scoring is a supplemental approach that can be applied to single cell datasets with the goal of providing further insights into cell identities. The approach described below uses the Seurat function `AddModuleScore` and the gene lists presented in Table 3 (also found in supplemental data 4) of our associated manuscript. 
+Module scoring is a supplemental approach that can be applied to single cell datasets with the goal of providing further insights into cell identities. The approach described below uses the Seurat function `AddModuleScore` and the gene lists presented above (and in supplemental data of our associated manuscript). 
 
 The concept of the AddModuleScore() function is similar to GSEA, but also distinct in many ways. Read the [Seurat documentation](https://satijalab.org/seurat/reference/addmodulescore) and/or check out [this webpage](https://www.waltermuskovic.com/2021/04/15/seurat-s-addmodulescore-function/) for more details.
 
 ```r
 #load in the reference file from supplemental data
-ref.df <- read.csv("supplementalData_4.csv", header = T)
+ref.df <- read.csv("supplementalData_4.csv", header = T) #check file name is correct
 
 #organize the data
-modulez <- split(ref.df$gene, ref.df$cellType_l2)
+modulez <- split(ref.df$gene, ref.df$cellType_l2) #check column name is correct
 
 #complete module scoring
 seu.obj <- AddModuleScore(seu.obj,
@@ -246,5 +240,5 @@ ggsave(paste("./output/", outName, "/", outName, "_dots_celltypes.png", sep = ""
 
 ### 6. Deconvoloution of bulkRNA seq data
 
-Under development
-
+The data generated from this project provides the data necessary to generate a __canine-specific__ reference to deconvolute bulk RNA-seq data for canine osteosarcoma tumors.  
+Currently instructions are not provided, but please reach out with questions as we can provide guidence for reference generation using CIBERSORTx, EPIC, TIMER, or other deconvolution tools.
