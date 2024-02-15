@@ -41,6 +41,7 @@ Cell markers lists will be curated for each cell type.
 
 <details open><summary>Cell types (High-resolution)</summary>
 <p>
+
 |Cell type     |                                |Marker                                        |
 |--------------|--------------------------------|----------------------------------------------|
 |B cell        |                                |                                              |
