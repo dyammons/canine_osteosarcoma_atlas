@@ -39,6 +39,8 @@ Link to UCSC Cell Browser documentation: https://cellbrowser.readthedocs.io/en/m
 
 Cell markers lists will be curated for each cell type.
 
+<details open><summary>Cell types (High-resolution)</summary>
+<p>
 |Cell type     |                                |Marker                                        |
 |--------------|--------------------------------|----------------------------------------------|
 |B cell        |                                |                                              |
@@ -90,6 +92,8 @@ Cell markers lists will be curated for each cell type.
 |              |Fibroblast                      |DCN, IGFBP7, COL3A1, COL6A3, COL12A1, COL6A1  |
 |              |Endothelial cell                |CD34, PLVAP, ESM1, EGFL7, FLT1, VWF           |
 
+</p>
+</details>
 
 ### 3. Using the data to complete reference mapping
 Reference mapping is useful tool to facilitate the identification of cell types in single cell datasets. The approach described here uses Seurat functions to identify anchors between a query dataset (external/personal data) and the reference datasets generated in this study.
