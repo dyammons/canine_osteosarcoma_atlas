@@ -22,19 +22,17 @@ pthread <- args$ntask
 index <- args$sampleIndex+1
 
 #load da source
-source("/pl/active/dow_lab/dylan/repos/K9-PBMC-scRNAseq/analysisCode/customFunctions.R")
+source("./customFunctions.R")
 library(infercnv)
 
 #read in data & load celltype metadata
-# seu.tumor <- readRDS(file = "./output/s3/naive6_QCfilter_2000Feats_res0.8_dims45_dist0.35_neigh40_S3.rds")
-# seu.tumor <- loadMeta(seu.obj = seu.tumor, metaFile = "./tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "majorID")
-seu.tumor <- readRDS(file = "./output/s3/canine_naive_n6_annotated.rds")
+seu.tumor <- readRDS(file = "../output/s3/canine_naive_n6_annotated.rds")
 
 #split out objects to process 1 at a time
 seu.sub.list <- SplitObject(seu.tumor, split.by = "orig.ident")
 seu.obj <- seu.sub.list[[index]]
 
-#remove neurtophils for this analysis
+#remove neutrophils for this analysis
 seu.obj <- subset(seu.obj, invert = T, subset = majorID == "neut")
 
 #clean env
@@ -45,7 +43,7 @@ gc()
 #tail -n +6 CanFam3.1.104.filtered.gtf | awk '$3 == "gene" {print $0}' | sed 's/[";]//g;' | awk '{OFS="\t"; print $1, $4,$5,$14,$10}' | sort > gene_position.txt
 
 #load clean gene list and then sort it
-gene.pos <- as.data.frame(read.csv(file = "gene_position.txt", header = FALSE, sep = "\t"))
+gene.pos <- as.data.frame(read.csv(file = "./metaDatagene_position.txt", header = FALSE, sep = "\t"))
 gene.pos.sorted <- gene.pos[order( gene.pos[,1], gene.pos[,2] ),]
 gene.pos.sorted$V4 <- ifelse(gene.pos.sorted$V4 == "ensembl", gene.pos.sorted$V5,gene.pos.sorted$V4)
 gene.pos.sorted <- gene.pos.sorted[,c(4,1,2,3)]
@@ -64,7 +62,7 @@ inferobj <- CreateInfercnvObject(raw_counts_matrix=matrix,
                                  ref_group_names=c("endo","mac")
                                 )
 
-outDir <- paste0("./output_cnvIndv/output_noNeuts_cleanData_", unique(seu.obj$orig.ident),"/")
+outDir <- paste0("../inferCNV/output_noNeuts_cleanData_", unique(seu.obj$orig.ident),"/")
 dir.create(outDir)
 inferobj <- infercnv::run(inferobj,
                       cutoff=0.1,

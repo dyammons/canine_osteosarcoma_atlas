@@ -1,8 +1,8 @@
 #!/usr/bin/Rscript
 
 #load custom functions & packages
+source("./customFunctions.R")
 library(CellChat)
-source("/pl/active/dow_lab/dylan/repos/K9-PBMC-scRNAseq/analysisCode/customFunctions.R")
 
 #load tumor class
 seu.obj <- readRDS(file = "./output/s3/tumor_QCfiltered_2_3000_res0.5_dims40_dist0.5_neigh50_S3.rds")
