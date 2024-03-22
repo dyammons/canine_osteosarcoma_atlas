@@ -35,32 +35,34 @@ attached base packages:
 [8] methods   base     
 
 other attached packages:
- [1] copykat_1.0.5               infercnv_1.10.1            
- [3] ComplexHeatmap_2.13.2       ggtree_3.2.1               
- [5] ape_5.7-1                   scuttle_1.4.0              
- [7] scRNAseq_2.8.0              ggpubr_0.4.0               
- [9] slingshot_2.7.0             TrajectoryUtils_1.2.0      
-[11] SingleCellExperiment_1.16.0 princurve_2.1.6            
-[13] clusterProfiler_4.2.2       msigdbr_7.5.1              
-[15] ggsankey_0.0.99999          lemon_0.4.5                
-[17] reshape_0.8.9               viridis_0.6.2              
-[19] viridisLite_0.4.1           SingleR_1.8.1              
-[21] SeuratDisk_0.0.0.9019       RColorBrewer_1.1-3         
-[23] pheatmap_1.0.12             DESeq2_1.34.0              
-[25] SummarizedExperiment_1.24.0 Biobase_2.54.0             
-[27] MatrixGenerics_1.6.0        matrixStats_1.0.0          
-[29] GenomicRanges_1.46.1        GenomeInfoDb_1.30.1        
-[31] IRanges_2.28.0              S4Vectors_0.32.4           
-[33] BiocGenerics_0.40.0         colorspace_2.0-3           
-[35] ggrepel_0.9.1               cowplot_1.1.1              
-[37] scales_1.2.1                patchwork_1.1.2            
-[39] DoubletFinder_2.0.3         clustree_0.4.4             
-[41] ggraph_2.0.5                forcats_0.5.2              
-[43] stringr_1.4.1               dplyr_1.0.10               
-[45] purrr_0.3.5                 readr_2.1.2                
-[47] tidyr_1.2.1                 tibble_3.1.8               
-[49] ggplot2_3.3.6               tidyverse_1.3.1            
-[51] SeuratObject_4.1.3          Seurat_4.3.0               
+ [1] circlize_0.4.16             singleseqgset_0.1.2.9000   
+ [3] Matrix_1.5-1                copykat_1.0.5              
+ [5] infercnv_1.10.1             ComplexHeatmap_2.13.2      
+ [7] ggtree_3.2.1                ape_5.7-1                  
+ [9] scuttle_1.4.0               scRNAseq_2.8.0             
+[11] ggpubr_0.4.0                slingshot_2.7.0            
+[13] TrajectoryUtils_1.2.0       SingleCellExperiment_1.16.0
+[15] princurve_2.1.6             clusterProfiler_4.2.2      
+[17] msigdbr_7.5.1               ggsankey_0.0.99999         
+[19] lemon_0.4.5                 reshape_0.8.9              
+[21] viridis_0.6.2               viridisLite_0.4.1          
+[23] SingleR_1.8.1               SeuratDisk_0.0.0.9019      
+[25] RColorBrewer_1.1-3          pheatmap_1.0.12            
+[27] DESeq2_1.34.0               SummarizedExperiment_1.24.0
+[29] Biobase_2.54.0              MatrixGenerics_1.6.0       
+[31] matrixStats_1.0.0           GenomicRanges_1.46.1       
+[33] GenomeInfoDb_1.30.1         IRanges_2.28.0             
+[35] S4Vectors_0.32.4            BiocGenerics_0.40.0        
+[37] colorspace_2.0-3            ggrepel_0.9.1              
+[39] cowplot_1.1.1               scales_1.2.1               
+[41] patchwork_1.1.2             DoubletFinder_2.0.3        
+[43] clustree_0.4.4              ggraph_2.0.5               
+[45] forcats_0.5.2               stringr_1.4.1              
+[47] dplyr_1.0.10                purrr_0.3.5                
+[49] readr_2.1.2                 tidyr_1.2.1                
+[51] tibble_3.1.8                ggplot2_3.3.6              
+[53] tidyverse_1.3.1             SeuratObject_4.1.3         
+[55] Seurat_4.3.0               
 
 loaded via a namespace (and not attached):
   [1] rsvd_1.0.5                    ica_1.0-3                    
@@ -140,35 +142,34 @@ loaded via a namespace (and not attached):
 [149] libcoin_1.0-9                 aplot_0.1.2                  
 [151] coin_1.4-2                    Rcpp_1.0.11                  
 [153] RANN_2.6.1                    mvtnorm_1.1-3                
-[155] circlize_0.4.16               enrichplot_1.14.2            
-[157] fansi_1.0.3                   tzdb_0.3.0                   
-[159] parallelly_1.32.1             R6_2.5.1                     
-[161] ggridges_0.5.4                lifecycle_1.0.3              
-[163] formatR_1.12                  curl_4.3.3                   
-[165] ggsignif_0.6.4                leiden_0.4.3                 
-[167] fastcluster_1.2.3             DO.db_2.9                    
-[169] Matrix_1.5-1                  qvalue_2.26.0                
-[171] TH.data_1.1-1                 RcppAnnoy_0.0.20             
-[173] iterators_1.0.14              spatstat.explore_3.0-5       
-[175] htmlwidgets_1.5.4             beachmat_2.10.0              
-[177] polyclip_1.10-4               biomaRt_2.50.3               
-[179] shadowtext_0.1.1              timechange_0.1.1             
-[181] gridGraphics_0.5-1            rvest_1.0.3                  
-[183] globals_0.16.1                spatstat.random_3.1-3        
-[185] progressr_0.11.0              codetools_0.2-18             
-[187] lubridate_1.9.0               GO.db_3.14.0                 
-[189] gtools_3.9.3                  prettyunits_1.1.1            
-[191] dbplyr_2.1.1                  gtable_0.3.1                 
-[193] DBI_1.1.3                     ggfun_0.0.8                  
-[195] tensor_1.5                    httr_1.4.4                   
-[197] KernSmooth_2.23-20            stringi_1.7.8                
-[199] progress_1.2.2                reshape2_1.4.4               
-[201] farver_2.1.1                  annotate_1.72.0              
-[203] xml2_1.3.3                    BiocNeighbors_1.12.0         
-[205] restfulr_0.0.15               geneplotter_1.72.0           
-[207] ggplotify_0.1.0               scattermore_0.8              
-[209] BiocVersion_3.14.0            bit_4.0.4                    
-[211] scatterpie_0.1.7              spatstat.data_3.0-0          
-[213] pkgconfig_2.0.3               babelgene_22.9               
-[215] rstatix_0.7.0                 knitr_1.40      
+[155] enrichplot_1.14.2             fansi_1.0.3                  
+[157] tzdb_0.3.0                    parallelly_1.32.1            
+[159] R6_2.5.1                      ggridges_0.5.4               
+[161] lifecycle_1.0.3               formatR_1.12                 
+[163] curl_4.3.3                    ggsignif_0.6.4               
+[165] leiden_0.4.3                  fastcluster_1.2.3            
+[167] DO.db_2.9                     qvalue_2.26.0                
+[169] TH.data_1.1-1                 RcppAnnoy_0.0.20             
+[171] iterators_1.0.14              spatstat.explore_3.0-5       
+[173] htmlwidgets_1.5.4             beachmat_2.10.0              
+[175] polyclip_1.10-4               biomaRt_2.50.3               
+[177] shadowtext_0.1.1              timechange_0.1.1             
+[179] gridGraphics_0.5-1            rvest_1.0.3                  
+[181] globals_0.16.1                spatstat.random_3.1-3        
+[183] progressr_0.11.0              codetools_0.2-18             
+[185] lubridate_1.9.0               GO.db_3.14.0                 
+[187] gtools_3.9.3                  prettyunits_1.1.1            
+[189] dbplyr_2.1.1                  gtable_0.3.1                 
+[191] DBI_1.1.3                     ggfun_0.0.8                  
+[193] tensor_1.5                    httr_1.4.4                   
+[195] KernSmooth_2.23-20            stringi_1.7.8                
+[197] progress_1.2.2                reshape2_1.4.4               
+[199] farver_2.1.1                  annotate_1.72.0              
+[201] xml2_1.3.3                    BiocNeighbors_1.12.0         
+[203] restfulr_0.0.15               geneplotter_1.72.0           
+[205] ggplotify_0.1.0               scattermore_0.8              
+[207] BiocVersion_3.14.0            bit_4.0.4                    
+[209] scatterpie_0.1.7              spatstat.data_3.0-0          
+[211] pkgconfig_2.0.3               babelgene_22.9               
+[213] rstatix_0.7.0                 knitr_1.40    
 ```
