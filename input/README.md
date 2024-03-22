@@ -1,54 +1,61 @@
-### Instructions to obtain processed data
+## Instructions to obtain processed data  
 
-From terminal (recommended): 
+The processed data are available on Zenodo and can be downloaded by visiting the [project repository web page](https://zenodo.org/records/10666969).
+Once on the web page scroll down and select download for the file(s) of interest.
+
+Prefer to use tools in python or R? Check out `zenodo_get` or `inborutils` to download within the respective software. 
+
+<details><summary>Example usage of zenodo_get </summary>
+<p>
+
+Below is the code needed to install `zendo_get` using `pip` and the command to download the repositiry specific to this project (this should be completed in an environment with python3 installed).  
+
+Visit the [`zendo_get`](https://github.com/dvolgyes/zenodo_get) page for most up to date instructions.
+
 ```sh
-### may use Zenodo instead of GEO to share the processed data ###
+#install the python tool using pip
+pip3 install zenodo_get
 
-# wget https://ftp.ncbi.nlm.nih.gov/geo/series/GSE252nnn/GSE252470/suppl/GSE252470_.rds.gz 
-# wget https://ftp.ncbi.nlm.nih.gov/geo/series/GSE252nnn/GSE252470/suppl/GSE252470_.rds.gz 
-# wget https://ftp.ncbi.nlm.nih.gov/geo/series/GSE252nnn/GSE252470/suppl/GSE252470_.rds.gz 
-# wget https://ftp.ncbi.nlm.nih.gov/geo/series/GSE252nnn/GSE252470/suppl/GSE252470_.rds.gz 
-# wget https://ftp.ncbi.nlm.nih.gov/geo/series/GSE252nnn/GSE252470/suppl/GSE252470_.rds.gz 
-# wget https://ftp.ncbi.nlm.nih.gov/geo/series/GSE252nnn/GSE252470/suppl/GSE252470_.rds.gz
-
-# gunzip *.rds.gz
+#download the Zenodo repository
+zenodo_get 10.5281/zenodo.10666969
 ```
-From R (NOTE: be sure to change `dest` to the path you want to download to!):
-```r
-### may use Zenodo instead of GEO to share the processed data ###
 
-# utils::download.file("https://ftp.ncbi.nlm.nih.gov/geo/series/GSE252nnn/GSE252470/suppl/GSE252470_.rds.gz", dest = "/pwd/to/dir/.rds.gz")
-# utils::download.file("https://ftp.ncbi.nlm.nih.gov/geo/series/GSE252nnn/GSE252470/suppl/GSE252470_.rds.gz", dest = "/pwd/to/dir/.rds.gz")
-# utils::download.file("https://ftp.ncbi.nlm.nih.gov/geo/series/GSE252nnn/GSE252470/suppl/GSE252470_.rds.gz", dest = "/pwd/to/dir/.rds.gz")
-# utils::download.file("https://ftp.ncbi.nlm.nih.gov/geo/series/GSE252nnn/GSE252470/suppl/GSE252470_.rds.gz", dest = "/pwd/to/dir/.rds.gz")
-# utils::download.file("https://ftp.ncbi.nlm.nih.gov/geo/series/GSE252nnn/GSE252470/suppl/GSE252470_.rds.gz", dest = "/pwd/to/dir/.rds.gz")
-# utils::download.file("https://ftp.ncbi.nlm.nih.gov/geo/series/GSE252nnn/GSE252470/suppl/GSE252470_.rds.gz", dest = "/pwd/to/dir/.rds.gz")
-```
-You can then use the R function `GEOquery::gunzip`, terminal `gunzip`, or prefered method to unzip the files
+</p>
+</details>
 
-### Instructions to obtain count matrices from NCBI GEO
-Navigate to directory in which you wish to download the data and run the following:
+## Instructions to obtain count matrices from NCBI GEO  
+
+### Retrieve the data
+
+To download via command line, navigate to directory in which you wish to download the data and run the following:
 ```sh
+#pull down the data
 wget https://ftp.ncbi.nlm.nih.gov/geo/series/GSE252nnn/GSE252470/suppl/GSE252470_RAW.tar
+
+#unpack the tar ball
+tar -xvf GSE252470_RAW.tar
 ```
-(Alternatively, you can download the zip folder by visiting the [GSE252470](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE252470) page)
 
+To download via NCBI webpage, navigate to the [GSE252470](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE252470) page and download the zip folder containing the count matrices. Once downloaded, you will likely need to extract/unpack the data before using (should be able to do by right clicking on the `GSE252470_RAW.tar` file).
 
-Then upacked with:
+### Rearrange the data (optional)
+
+The count matrices were renamed when uploaded to NCBI. If you wish to use the analysis in it's entirety you will need to rename the files accordingly.
+
+To rearrange the file structure for easy loading into Seurat, follow the code chunks below (alternatively, the files can be manually rearrange/renamed):
+
+First, get the provided `deCoder.tsv` file in the directory you wish to house the input files then create a file called `rearrange.sh`.
+
 ```sh
-tar -xf GSE252470_RAW.tar
-```
-(Or, right click and extract all)
+#pull down deCoder.tsv
+wget https://github.com/dyammons/canine_osteosarcoma_atlas/tree/main/input/deCoder.tsv
 
-
-To rearrange the file structure for easy loading into Seurat, follow the code chunks below (Alternatively, manually rearrange):
-
-First, get the provided deCoder.tsv file in the directory you wish to house the input files then:
-```sh
+#create an empty file
 touch rearrange.sh
 ```
 
-Then, copy the contents of the below script into the rearrange.sh file
+Once `rearrange.sh` is created, copy the contents of the code block below into the file.
+
 ```sh
 #!/usr/bin/env bash
 
@@ -70,20 +77,23 @@ do
 done < deCoder.tsv
 ```
 
-After transfering the code, run:
+After transferring the code, run:
 ```sh
 bash rearrange.sh
 ```
 
-From there you can follow the provided analysis scripts.
+Now the files should be rearranged and renamed as needed to be identical to the nomenclature used in the associated analysis code.
 
-### Instructions to obtain raw data from SRA
+## Instructions to obtain raw data from SRA
 Navigate to directory of interest and run for each file you wish to pull down. Then with SRA toolkit installed run:
 
-NOTE: all raw data files are just under 2TB of data
+NOTE: all raw data files are around 1TB of data
 ```sh
 prefetch -v --max-size=55000000 SRR #smallest file for ex
 fastq-dump --gzip --split-files SRR
 ```
-From there you will have to modify the file names to be compatible with the cellranger input (if using cellranger). It expects `[Sample Name]_S1_L00[Lane Number]_[Read Type]_001.fastq.gz` -- feel free to reach out if you have trouble
+From there you will have to modify the file names to be compatible with the Cell Ranger input (if using Cell Ranger). It expects:  
+`[Sample Name]_S1_L00[Lane Number]_[Read Type]_001.fastq.gz`  
+
+Feel free to reach out (email or create an issue on GitHub) if you have trouble getting the data downloaded.
 
