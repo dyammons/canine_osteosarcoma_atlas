@@ -1,41 +1,44 @@
-# canine_osteosarcoma_atlas
+# Canine osteosarcoma scRNA-seq atlas
 
 This GitHub repository contains all the analysis code used in, "Single-cell RNA sequencing reveals the cellular and molecular composition of treatment-naïve primary canine osteosarcoma tumors"
 
-The manuscript is currently under review and the GitHub page will be finalized by the time of publication.
+The manuscript has been accepted to _Communications Biology_ and will be published shortly.
 
-A pre-print is avalible at:
+A pre-print is available at:
 > https://www.researchsquare.com/article/rs-3232360/v1
 
 ## Repository goals: 
-- provide a resource to make the data generated from this project accessible
-- enable reproducible/transparent data reporting
-- provide analysis code to reproduce custom figures
+- Provide a resource to make the data generated from this project accessible
+- Enable reproducible/transparent data reporting
+- Provide analysis code to reproduce custom figures
 
-If you have any questions or concerns, please submit an issue, contact the corresponding author(s), and/or contact Dylan Ammons at dylan.ammons @ colostate dot edu.
+If you have any questions or concerns, please submit an issue via GitHub and/or contact the corresponding author via email: dylan.ammons @ colostate dot edu.
 
 ## File structure:
 - [:file\_folder: input](/input) contains relevant metadata files and instructions for obtaining data associated with this study
-- [:file\_folder: analysisCode](/analysisCode) contains the analysis code and source file used to complete the data analysis
+- [:file\_folder: analysisCode](/analysisCode) contains the analysis code (largely separated in scripts by figure) and R source file containing custom functions used to complete data analysis
+
 
 ## Supplemental data and potential uses:
-1. [Browse the data](#1-browse-the-complete-annotated-dataset)
-1. [Cell type annotations](#2-cell-type-annotations-with-defining-markers)
-1. [Reference Mapping](#3-using-the-data-to-complete-reference-mapping)
-1. [GSEA using dataset](#4-gene-set-enrichment-analysis)
-1. [Module scoring](#5-module-scoring)
-1. [Deconvoloution](#6-deconvoloution-of-bulkRNA-seq-data)
+1. [Browse the data](#browse-the-complete-annotated-dataset)
+1. [Cell type annotations](#cell-type-annotations-with-defining-markers)
+1. [Reference Mapping](#using-the-data-to-complete-reference-mapping)
+1. [GSEA using dataset](#gene-set-enrichment-analysis)
+1. [Module scoring](#module-scoring)
+1. [Deconvoloution](#deconvoloution-of-bulkRNA-seq-data)
 
-### 1. Browse the complete annotated dataset
+### Browse the complete annotated dataset
 
-The proccessed dataset will be avaliable for browsing via the UCSC Cell Browser portal shortly.
-Using the portal you can explore feature expression throughout the dataset as well as obtain the transcriptomic signatures of each cell type though an interactive webpage.
+The processed dataset is available for browsing via the UCSC Cell Browser portal.
+Using the portal you can explore feature expression as well as obtain the transcriptomic signatures of each cell type though an interactive webpage.
 
-Link to the dataset: TBD
+Link to the dataset: https://cells.ucsc.edu/?ds=canine-os-atlas
 
 Link to UCSC Cell Browser documentation: https://cellbrowser.readthedocs.io/en/master/
 
-### 2. Cell type annotations with defining markers
+### Cell type annotations with defining markers
+
+Cell markers lists were curated by evaluating the top 50 defining features (identified using `FindMarkers`) for each cell type. The specificity of the top features was evaluated using violin plots and the UCSC cell browser. Preference given to unique features only found in the top 50 of one cell type.
 
 <details open><summary>Cell types (High-resolution)</summary>
 <p>
@@ -94,15 +97,19 @@ Link to UCSC Cell Browser documentation: https://cellbrowser.readthedocs.io/en/m
 </p>
 </details>
 
-### 3. Using the data to complete reference mapping
+### Using the data to complete reference mapping
 Reference mapping is useful tool to facilitate the identification of cell types in single cell datasets. The approach described here uses Seurat functions to identify anchors between a query dataset (external/personal data) and the reference datasets generated in this study.
 
-NOTE: this is designed to be run with Seurat v4. This may work with Seurat v5, but has not been tested yet. Additional code will be added if it does not work with Seurat v5.
+NOTE: this is designed to be run with Seurat v4, but can be modified to run with a query dataset processed using Seurat v5.
 
-Before running the reference mapping code, a Seurat object need to be preprocessed and stored as an object named `seu.obj`.  
-The processed Seurat object to be loaded in as `reference` can be obtained by following the instructions in [:file\_folder: input](/input). 
+Before running the reference mapping code, a Seurat object needs to be preprocessed and stored as an varible named `seu.obj`.  
+
+The processed Seurat object to be loaded in as `reference` can be obtained by following the instructions in [:file\_folder: input](/input).
+
 ```r
-#set the path to the location in which the reference file is saved
+### Reference mapping using Seurat v4
+
+#set path location where the downloaded reference file is saved
 reference <- readRDS(file = "./final_dataSet.rds")
 
 #prepare the reference
@@ -118,9 +125,17 @@ anchors <- FindTransferAnchors(
     dims= 1:50
 )
 
-#select meta.data slot to use for label transfer -- change refdata value to use alternate labels (i.e., refdata = reference$celltype.l1)
-predictions <- TransferData(anchorset = anchors, refdata = reference$celltype.l3,
-    dims = 1:50)
+#FYI: this is a computationally intense step
+#select meta.data slot to use for label transfer
+#can change refdata argument to use alternate cell type labels 
+#(i.e., refdata = reference$celltype.l1)
+predictions <- TransferData(
+    anchorset = anchors, 
+    refdata = reference$celltype.l3,
+    dims = 1:50
+)
+
+#store the metadata values
 seu.obj <- AddMetaData(seu.obj, metadata = predictions)
 
 #generate and save the image
@@ -135,11 +150,11 @@ pi <- DimPlot(seu.obj,
 ggsave("./output/referenceMap.png", width = 7, height = 7)
 ```
 
-### 4. Gene set enrichment analysis
+### Gene set enrichment analysis
 
 The data generated from this work have the potential to provide supporting evidence to evaluate/confirm the cell identity of sorted bulk RNA sequencing dataset. One approach to do this is to use gene set enrichment analysis (GSEA) with the terms representing the cell type identified in our dataset.
 
-Required input: a list of gene symbols that you wish to query. In this case the genelists are stored in a dataframe called `clus.markers`
+Required input: a list of gene symbols that you wish to query. In this example the genelists to be tested are stored in a dataframe called `clus.markers`
 
 These gene lists could be generated by simply using the features with the highest level of expression after normalizing your dataset, comparing the transcriptome of a cell population of interest (i.e., blood-derived macrophage) verses a reference (i.e., total PBMCs), or any other relevant approach to identify genes of interest.
 
@@ -153,13 +168,22 @@ Example data frame format:
 ```
 
 ```r
-#read in the one of the supplemental data files provided with the publication
+library(Seurat)
+library(tidyverse)
+
+#read in the supplemental data file provided with the publication
 geneLists <- read.csv(file = "./input/supplementalData_1.csv") #check file name is correct
 
 #clean the reference
-datas <- geneLists[,c("cluster","gene")]
+datas <- geneLists[ ,c("cluster","gene")]
 colnames(datas) <- c("gs_name", "gene_symbol")
-datas <- datas %>% group_by(gs_name) %>% top_n(50) %>% dplyr::distinct(gene_symbol) %>% as.data.frame()
+
+#subset on the 50 defining features (optional)
+datas <- datas %>% 
+    group_by(gs_name) %>% 
+    top_n(50) %>% 
+    distinct(gene_symbol) %>% 
+    as.data.frame()
 
 #run GSEA using clusterProfiler
 clusters <- unique(clus.markers$cluster)
@@ -202,18 +226,18 @@ plot <- ggplot(data = cellCalls, mapping = aes_string(x = 'cluster', y = 'ID')) 
 ggsave("gsea_scRNA_terms.png", width = 6, height = 4)
 ```
 
-### 5. Module scoring
+### Module scoring
 
 Module scoring is a supplemental approach that can be applied to single cell datasets with the goal of providing further insights into cell identities. The approach described below uses the Seurat function `AddModuleScore` and the gene lists presented above (and in supplemental data of our associated manuscript). 
 
-The concept of the AddModuleScore() function is similar to GSEA, but also distinct in many ways. Read the [Seurat documentation](https://satijalab.org/seurat/reference/addmodulescore) and/or check out [this webpage](https://www.waltermuskovic.com/2021/04/15/seurat-s-addmodulescore-function/) for more details.
+The concept of the `AddModuleScore` function is similar to GSEA, but also distinct in many ways. Read the [Seurat documentation](https://satijalab.org/seurat/reference/addmodulescore) and/or check out [this webpage](https://www.waltermuskovic.com/2021/04/15/seurat-s-addmodulescore-function/) for more details.
 
 ```r
 #load in the reference file from supplemental data
 ref.df <- read.csv("supplementalData_4.csv", header = T) #check file name is correct
 
 #organize the data
-modulez <- split(ref.df$gene, ref.df$cellType_l2) #check column name is correct
+modulez <- split(ref.df$gene, ref.df$cellType_l2)
 
 #complete module scoring
 seu.obj <- AddModuleScore(seu.obj,
@@ -223,14 +247,11 @@ seu.obj <- AddModuleScore(seu.obj,
 #correct the naming -- credit to: https://github.com/satijalab/seurat/issues/2559
 names(seu.obj@meta.data)[grep("_score", names(seu.obj@meta.data))] <- names(modulez)
 
-#plot the results -- uses a custom function, so you will need to source the customFeunctions.R file. Alt: can also be visulized with FeaturePlot() or DotPlot()
+#plot the results -- uses a custom function, so you will need to source the customFunctions.R file. Alt: can also be visulized with FeaturePlot() or DotPlot()
 features <- names(modulez)
 ecScores <- majorDot(seu.obj = seu.obj, groupBy = "clusterID_sub", scale = T,
                      features = features
                     ) + theme(axis.title = element_blank(),
-                              #axis.ticks = element_blank(),
-                              #legend.justification = "left",
-                              #plot.margin = margin(7, 21, 7, 7, "pt")
                               legend.direction = "vertical",
                               legend.position = "right"
                              ) + guides(color = guide_colorbar(title = 'Scaled\nenrichment\nscore')) + guides(size = guide_legend(nrow = 3, byrow = F, title = 'Percent\nenriched'))
@@ -238,7 +259,8 @@ ecScores <- majorDot(seu.obj = seu.obj, groupBy = "clusterID_sub", scale = T,
 ggsave(paste("./output/", outName, "/", outName, "_dots_celltypes.png", sep = ""),width = 10,height=6)
 ```
 
-### 6. Deconvoloution of bulkRNA seq data
+### Deconvoloution of bulk RNA sequencing data
 
 The data generated from this project provides the data necessary to generate a __canine-specific__ reference to deconvolute bulk RNA-seq data for canine osteosarcoma tumors.  
+
 Currently instructions are not provided, but please reach out with questions as we can provide guidence for reference generation using CIBERSORTx, EPIC, TIMER, or other deconvolution tools.
