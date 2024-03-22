@@ -4,7 +4,7 @@ This GitHub repository contains all the analysis code used in, "Single-cell RNA 
 
 The manuscript is currently under review and the GitHub page will be finalized by the time of publication.
 
-A pre-print is avalible at:
+A pre-print is available at:
 > https://www.researchsquare.com/article/rs-3232360/v1
 
 ## Repository goals: 
@@ -16,7 +16,7 @@ If you have any questions or concerns, please submit an issue, contact the corre
 
 ## File structure:
 - [:file\_folder: input](/input) contains relevant metadata files and instructions for obtaining data associated with this study
-- [:file\_folder: analysis](/analysis) contains the analysis code and source file used to complete the data analysis
+- [:file\_folder: analysis](/analysis) contains the analysis code (largely separated in scripts by figure) and source file used to complete the data analysis
 
 ## Supplemental data and potential uses:
 1. [Browse the data](#1-browse-the-complete-annotated-dataset)
@@ -28,7 +28,7 @@ If you have any questions or concerns, please submit an issue, contact the corre
 
 ### 1. Browse the complete annotated dataset
 
-The proccessed dataset will be avaliable for browsing via the UCSC Cell Browser portal shortly.
+The processed dataset will be available for browsing via the UCSC Cell Browser portal shortly.
 Using the portal you can explore feature expression throughout the dataset as well as obtain the transcriptomic signatures of each cell type though an interactive webpage.
 
 Link to the dataset: TBD
