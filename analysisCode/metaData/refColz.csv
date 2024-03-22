@@ -1,0 +1,13 @@
+"orig.ident_2","name","colz","subtype"
+"Naive_1","N1","#004616",unk
+"Naive_2","N2","#126429",Osteoblastic
+"Naive_3","N3","#2B8238",Fibroblastic
+"Naive_4","N4","#419F44",Osteoblastic
+"Naive_5","N5","#6DB667",Chrondroblastic
+"Naive_6","N6","#93CA8B",Osteoblastic
+"Treated_1","T1","#645A9F",Fibroblastic
+"Treated_2","T2","#7463AC",unk
+"Treated_3","T3","#846DBA",unk
+"Treated_4","T4","#9378C2",Osteoblastic
+"Treated_5","T5","#A184CA",Osteoblastic
+"Treated_6","T6","#AF90D2",Osteoblastic

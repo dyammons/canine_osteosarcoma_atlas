@@ -1,0 +1,28 @@
+clusterID,id,majorID,freqID,color,label,tumorO
+0,T1,tumor,Tumor/Fibroblast,#90D293,black,T1
+1,T2,tumor,Tumor/Fibroblast,#9CD6BA,black,T2
+2,N1,neut,Neutrophil,#2E4F79,white,Other
+3,M1,mac,TIM/TAM,#7D0025,white,T2
+4,TC1,tcell,T cell,#2E4F79,white,Other
+5,M2,mac,TIM/TAM,#3267AD,white,Other
+6,T3,tumor,Tumor/Fibroblast,#0E3F5C,white,Other
+7,T4,cyclingTumor,Cycling Tumor,#FF8D75,black,T3
+8,M3,mac,TIM/TAM,#F9FFAF,black,Other
+9,T5,cyclingTumor,Cycling Tumor,#43898C,black,Other
+10,OC1,oc,Osteoclast,#3D1778,white,T4 (cycling)
+11,TC2,tcell,T cell,#9A8FC4,black,Other
+12,T6,tumor,Tumor/Fibroblast,grey,black,Other
+13,TC3,tcell,T cell,#273871,white,Other
+14,OC2,oc,Osteoclast,#AF615B,black,T6
+15,T7,tumor,Tumor/Fibroblast,#E94900,white,Other
+16,EC,endo,Endothelial,grey,black,Other
+17,DC1,dc,Dendritic cell,#47D2AF,black,Other
+18,TC4,tcell,T cell,grey,black,Other
+19,TC5,tcell,T cell,#9A8FC4,black,T7
+20,BC1,bcell,B cell,#B91A00,white,Other
+21,BC2,bcell,B cell,#148B7D,white,Other
+22,MST,mast,Mast cell,#00366C,white,Other
+23,DC2,dc,Dendritic cell,grey,black,Other
+24,DC3,dc,Dendritic cell,#F28600,black,T8
+25,DC4,dc,Dendritic cell,#00366C,white,Other
+26,T8,tumor,Tumor/Fibroblast,#F28600,black,T8
