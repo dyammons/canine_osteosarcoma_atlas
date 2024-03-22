@@ -8,16 +8,16 @@ source("./customFunctions.R")
 ################################################
 
 #load in all cell object and add metadata
-seu.obj <- readRDS(file = "./output/s3/naive6_QCfilter_2000Feats_res0.8_dims45_dist0.35_neigh40_S3.rds")
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "majorID")
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "freqID")
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "id")
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "tumorO")
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./refColz.csv", groupBy = "orig.ident_2", metaAdd = "name")
+seu.obj <- readRDS(file = "../output/s3/naive6_QCfilter_2000Feats_res0.8_dims45_dist0.35_neigh40_S3.rds")
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "majorID")
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "freqID")
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "id")
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "tumorO")
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/refColz.csv", groupBy = "orig.ident_2", metaAdd = "name")
 
 sorted_labels <- sort(unique(seu.obj$name))
 seu.obj$name <- factor(seu.obj$name, levels = sorted_labels)
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./refColz.csv", groupBy = "name", metaAdd = "colz")
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/refColz.csv", groupBy = "name", metaAdd = "colz")
 
 #subset on dcs
 seu.obj <- subset(seu.obj,
@@ -25,15 +25,15 @@ seu.obj <- subset(seu.obj,
                   majorID ==  "dc")
 
 #complete independent reclustering
-seu.obj <- indReClus(seu.obj = seu.obj, outDir = "./output/s2/", subName = "dc_QCfiltered_2000", preSub = T, nfeatures = 2000,
+seu.obj <- indReClus(seu.obj = seu.obj, outDir = "../output/s2/", subName = "dc_QCfiltered_2000", preSub = T, nfeatures = 2000,
                       vars.to.regress = "percent.mt"
                        )
 
-# seu.obj <- readRDS(file = "./output/s2/dc_QCfiltered_2000_S2.rds")
-clusTree(seu.obj = seu.obj, dout = "./output/clustree/", outName = "dc_QCfiltered_2000", test_dims = c(45,40,35), algorithm = 3, prefix = "integrated_snn_res.")
+# seu.obj <- readRDS(file = "../output/s2/dc_QCfiltered_2000_S2.rds")
+clusTree(seu.obj = seu.obj, dout = "../output/clustree/", outName = "dc_QCfiltered_2000", test_dims = c(45,40,35), algorithm = 3, prefix = "integrated_snn_res.")
 
 #complete dim reduction and vis
-seu.obj <- dataVisUMAP(seu.obj = seu.obj, outDir = "./output/s3/", outName = "dc_QCfiltered_2000", final.dims = 35, final.res = 0.3, stashID = "clusterID_sub", 
+seu.obj <- dataVisUMAP(seu.obj = seu.obj, outDir = "../output/s3/", outName = "dc_QCfiltered_2000", final.dims = 35, final.res = 0.3, stashID = "clusterID_sub", 
                         algorithm = 3, prefix = "integrated_snn_res.", min.dist = 0.3, n.neighbors = 50, assay = "integrated", saveRDS = T,
                         features = c("PTPRC", "CD3E", "CD8A", "GZMA", 
                                      "IL7R", "ANPEP", "FLT3", "DLA-DRA"))
@@ -43,7 +43,7 @@ seu.obj <- dataVisUMAP(seu.obj = seu.obj, outDir = "./output/s3/", outName = "dc
 ######################################
 
 #load in processed object
-seu.obj <- readRDS(file = "./output/s3/dc_QCfiltered_2000_res0.3_dims35_dist0.3_neigh50_S3.rds")
+seu.obj <- readRDS(file = "../output/s3/dc_QCfiltered_2000_res0.3_dims35_dist0.3_neigh50_S3.rds")
 
 #stash new idents
 Idents(seu.obj) <- "clusterID_sub"
@@ -67,7 +67,7 @@ outName <- "dc_naive6"
 ct.l3 <- seu.obj$majorID_sub
 
 ### Fig extra: create violin plots for cell ID
-vilnPlots(seu.obj = seu.obj, groupBy = "majorID_sub2", numOfFeats = 24, outName = "dc_QCfiltered_2000", outDir = "./output/viln/myeloid/", outputGeneList = T, filterOutFeats = c("^MT-", "^RPL", "^ENSCAF", "^RPS"), assay = "RNA", 
+vilnPlots(seu.obj = seu.obj, groupBy = "majorID_sub2", numOfFeats = 24, outName = "dc_QCfiltered_2000", outDir = "../output/viln/myeloid/", outputGeneList = T, filterOutFeats = c("^MT-", "^RPL", "^ENSCAF", "^RPS"), assay = "RNA", 
                       min.pct = 0.25, only.pos = T
                      )
 
@@ -83,7 +83,7 @@ pi <- DimPlot(seu.obj,
               shuffle = TRUE
 )
 pi <- formatUMAP(plot = pi) + NoLegend() + theme(axis.title = element_blank(), panel.border = element_blank())
-ggsave(paste("./output/", outName, "/", outName, "_rawUMAP.png", sep = ""), width = 7, height = 7)
+ggsave(paste("../output/", outName, "/", outName, "_rawUMAP.png", sep = ""), width = 7, height = 7)
 
 
 ### Create labels to be cropped onto UMAP
@@ -98,7 +98,7 @@ df$labCol <- c("black","black","white","white","black")
 leg <- cusLeg(legend = df, clusLabel = "cluster",colorz = "colorz", legLabel = "cellType",labCol = "labCol",colz = 1, rowz = NULL, groupLabel = "title", groupBy = "title",sortBy = "cluster",
              compress_x = 0.7)
 
-ggsave(paste("./output/", outName, "/", outName, "_leg_forUMAP_labels.png", sep = ""), width = 1.25, height = 7)
+ggsave(paste("../output/", outName, "/", outName, "_leg_forUMAP_labels.png", sep = ""), width = 1.25, height = 7)
 
 
 ### Fig extra: Create raw UMAP with orig clusID
@@ -111,7 +111,7 @@ pi <- DimPlot(seu.obj,
               shuffle = TRUE
 )
 pi <- cusLabels(plot = pi, shape = 21, size = 8, alpha = 0.8) + NoLegend()
-ggsave(paste("./output/", outName, "/", outName, "_rawUMAP_clusterID.png", sep = ""), width = 7, height = 7)
+ggsave(paste("../output/", outName, "/", outName, "_rawUMAP_clusterID.png", sep = ""), width = 7, height = 7)
 
 
 ### Fig extra: Create UMAP by sample
@@ -127,12 +127,13 @@ pi <- DimPlot(seu.obj,
 )
 
 pi <- formatUMAP(plot = pi) + NoLegend()
-ggsave(paste("./output/", outName, "/", outName, "_UMAPbySample.png", sep = ""), width = 7, height = 10.5)
+ggsave(paste("../output/", outName, "/", outName, "_UMAPbySample.png", sep = ""), width = 7, height = 10.5)
 
 
 ### Fig extra: ref map with canine pbmc dataset from Ammons 2023 (https://doi.org/10.3389/fimmu.2023.1162700)
 #set the path to the location in which the reference file is saved
-reference <- readRDS(file = "../../k9_PBMC_scRNA/analysis/output/s3/final_dataSet_HvO.rds") #this file can be downloaded using `wget https://ftp.ncbi.nlm.nih.gov/geo/series/GSE225nnn/GSE225599/suppl/GSE225599_final_dataSet_HvO.rds.gz`
+#downloaded using `wget https://ftp.ncbi.nlm.nih.gov/geo/series/GSE225nnn/GSE225599/suppl/GSE225599_final_dataSet_HvO.rds.gz`
+reference <- readRDS(file = "../../../k9_PBMC_scRNA/analysis/output/s3/final_dataSet_HvO.rds") 
 
 #prepare the reference
 reference[['integrated']] <- as(object = reference[['integrated']] , Class = "SCTAssay")
@@ -163,7 +164,7 @@ pi <- DimPlot(seu.obj,
               shuffle = F#,
              # ncol = 3
 )
-ggsave(paste("./output/", outName, "/", outName, "_referenceMap.png", sep = ""), width = 10, height = 7)
+ggsave(paste("../output/", outName, "/", outName, "_referenceMap.png", sep = ""), width = 10, height = 7)
 
 
 ### Fig 4b: Create violin plots for key feats
@@ -190,7 +191,7 @@ pi <- VlnPlot(
                                axis.title.x = element_blank())
 
 #plot <- prettyViln(plot = pi, colorData = NULL, nrow = 2, ncol = 4)
-ggsave(paste("./output/", outName, "/", outName, "_selectViln.png", sep = ""), width = 5, height =6)
+ggsave(paste("../output/", outName, "/", outName, "_selectViln.png", sep = ""), width = 5, height =6)
 
 
 ### Fig 4c: complete heirchical clustering
@@ -213,115 +214,14 @@ hc <- hclust(as.dist(M),method="complete")
 
 #plot the results
 ggtree(as.phylo(hc)) + geom_tiplab(offset = 0.003) + xlim(NA,.05) + geom_tippoint(shape = 21,size = 8,alpha = 1, colour="black", fill = c("#FF755F", "#FFD6C6", "#AC0535", "#EB2C31", "tomato")) + geom_tiplab(aes(label = c("0","1","2","3","4","5","6","7","8")),colour=c("black","black","white","white","black"),offset = -0.001)
-
-ggsave(paste("./output/", outName, "/", outName, "_dc_hc.png", sep = ""), width = 3, height = 7)
-
-
-geom_hilight(data=node.df, mapping=aes(node=node, fill=colour)
-                                                   ) + scale_fill_manual(values=c("lightblue","lightgrey")
-                                                                        ) + geom_cladelab(data=node.df, mapping=aes(node=node, label=cellType), align=TRUE, angle=270, offset = 0.18, hjust = 0.5, vjust = 0) +  NoLegend()+ xlim(NA, 1.5)
+ggsave(paste("../output/", outName, "/", outName, "_dc_hc.png", sep = ""), width = 3, height = 7)
 
 
 ### Fig supp 4a: key feature plots
 features <- c("MS4A1","JCHAIN", "FLT3", "DLA-DRA")
 p <- prettyFeats(seu.obj = seu.obj, nrow = 2, ncol =  2, features = features, 
                  color = "black", order = T, pt.size = 0.5, title.size = 20, noLegend = T)
-ggsave(paste("./output/", outName, "/", outName, "_key_feats.png", sep = ""), width = 6, height = 6)
-
-
-# ### run SCENIC: supplemental -- uses conda env2
-# exprMat <- seu.obj@assays$RNA@data
-# cellInfo <- data.frame(CellType=seu.obj$majorID_sub2)
-
-# cellInfo$nGene <- colSums(exprMat>0)
-
-# cellInfo <- data.frame(cellInfo)
-# saveRDS(cellInfo, file="int/cellInfo.Rds")
-
-# colVars <- list(CellType=c("cDC2"="forestgreen", 
-#                            "migDC"="darkorange", 
-#                            "cDC1"="magenta4", 
-#                            "pDC"="hotpink", 
-#                            "pDC_2"="red3"))
-# colVars$CellType <- colVars$CellType[intersect(names(colVars$CellType), cellInfo$CellType)]
-# saveRDS(colVars, file="int/colVars.Rds")
-
-
-# library(SCENIC)
-# library(AUCell)
-# org <- "hgnc" # or hgnc, or dmel
-# dbDir <- "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/risDataBase" # RcisTarget databases location
-# myDatasetTitle <- "SCENIC DCs" # choose a name for your analysis
-
-# # DbNames <- c("hg19-500bp-upstream-7species.mc9nr.genes_vs_motifs.rankings.feather","hg19-tss-centered-10kb-7species.mc9nr.genes_vs_motifs.rankings.feather")
-# DbNames <- c("hg19-500bp-upstream-7species.mc9nr.feather","hg19-tss-centered-10kb-10species.mc9nr.feather")
-# names(DbNames) <- c("500bp","10kb")
-# scenicOptions <- initializeScenic(org=org, dbDir=dbDir, dbs=DbNames, datasetTitle=myDatasetTitle, nCores=10) 
-
-# scenicOptions@inputDatasetInfo$cellInfo <- "int/cellInfo.Rds"
-# scenicOptions@inputDatasetInfo$colVars <- "int/colVars.Rds"
-
-# genesKept <- geneFiltering(exprMat, scenicOptions=scenicOptions,
-#                            minCountsPerGene=3*.01*ncol(exprMat),
-#                            minSamples=ncol(exprMat)*.01)
-
-
-# exprMat_filtered <- as.matrix(exprMat[genesKept, ])
-# runCorrelation(exprMat_filtered, scenicOptions)
-
-
-
-# exprMat_filtered <- log2(exprMat_filtered+1) 
-# runGenie3(exprMat_filtered, scenicOptions)
-
-# exprMat_log <- log2(exprMat+1)
-# scenicOptions@settings$verbose <- TRUE
-# scenicOptions@settings$nCores <- 10
-# scenicOptions@settings$seed <- 123
-
-# scenicOptions <- runSCENIC_1_coexNetwork2modules(scenicOptions)
-# scenicOptions <- runSCENIC_2_createRegulons(scenicOptions)
-# scenicOptions <- runSCENIC_3_scoreCells(scenicOptions, as.matrix(exprMat_log))
-# saveRDS(scenicOptions, file="int/scenicOptions.Rds") # To save status
-
-# aucellApp <- plotTsne_AUCellApp(scenicOptions, exprMat_log)
-
-# # Save the modified thresholds:
-# newThresholds <- savedSelections$thresholds
-# scenicOptions@fileNames$int["aucell_thresholds",1] <- "int/newThresholds.Rds"
-# saveRDS(newThresholds, file=getIntName(scenicOptions, "aucell_thresholds"))
-# saveRDS(scenicOptions, file="int/scenicOptions.Rds") 
-
-
-# scenicOptions <- runSCENIC_4_aucell_binarize(scenicOptions)
-
-# #resume
-# cellInfo <- readRDS("int/cellInfo.Rds")
-# scenicOptions <- readRDS(file="int/scenicOptions.Rds") 
-# regulonAUC <- loadInt(scenicOptions, "aucell_regulonAUC")
-# regulonAUC <- regulonAUC[onlyNonDuplicatedExtended(rownames(regulonAUC)),]
-# regulonActivity_byCellType <- sapply(split(rownames(cellInfo), cellInfo$CellType),
-#                                      function(cells){rowMeans(getAUC(regulonAUC)[,cells])})
-# regulonActivity_byCellType_Scaled <- t(scale(t(regulonActivity_byCellType), center = T, scale=T))
-
-# outfile <- paste("./output/", outName, "/", outName, "_heatMap.png", sep = "")
-# png(file = outfile, width=6000, height=4000, res=400)
-# ComplexHeatmap::Heatmap(regulonActivity_byCellType_Scaled, name="Regulon activity")
-# dev.off()
-                  
-                                     
-# topRegulators <- reshape2::melt(regulonActivity_byCellType_Scaled)
-# colnames(topRegulators) <- c("Regulon", "CellType", "RelativeActivity")
-# topRegulators <- topRegulators[which(topRegulators$RelativeActivity>0),]
-# viewTable(topRegulators)
-
-
-# rss <- calcRSS(AUC=getAUC(regulonAUC), cellAnnotation=cellInfo[colnames(regulonAUC), "CellType"])
-
-# lapply(levels(seu.obj$majorID_sub2),function(x){
-#     p <- plotRSS_oneSet(rss, setName = x)
-#     ggsave(paste("./output/", outName, "/", outName,"_",x, "_rssPlot.png", sep = ""), width = 7, height = 7)
-# })
+ggsave(paste("../output/", outName, "/", outName, "_key_feats.png", sep = ""), width = 6, height = 6)
 
 
 #load in human genessets to define DCs
@@ -349,7 +249,7 @@ ecScores <- majorDot(seu.obj = seu.obj, groupBy = "majorID_sub",
                                                                    axis.text.x = element_text(angle=0, hjust = 0.5)
                                             ) + scale_y_discrete(position = "right") + scale_colour_continuous(name="Enrichment score", type = "viridis") + NoLegend()
 
-ggsave(paste("./output/", outName, "/", outName, "_dotPlot_ecScores.png", sep = ""), width = 6,height = 2)
+ggsave(paste("../output/", outName, "/", outName, "_dotPlot_ecScores.png", sep = ""), width = 6,height = 2)
 
 
 ### Fig 4d/e: use human genes to define DCs
@@ -396,45 +296,45 @@ modulez2 <- list("TLRs" = c("MYD88","MAVS","TLR1","TLR2","TLR3","TLR4","TLR5","T
 p <- Reduce( `+`, plots ) +  plot_layout(guides = "collect", design = patch, 
                                                                              width = unname(unlist(lapply(modulez, length)))/sum(unname(unlist(lapply(modulez, length)))))
 
-ggsave(paste("./output/", outName, "/", outName, "_dotPlot_ecScores_2.png", sep = ""), width = 10,height=3)
+ggsave(paste("../output/", outName, "/", outName, "_dotPlot_ecScores_2.png", sep = ""), width = 10,height=3)
 
 
 ### Fig 4f: genes that define
 p_volc <- btwnClusDEG(seu.obj = seu.obj, groupBy = "clusterID_sub", idents.1 = "1", idents.2 = "0", bioRep = "name",padj_cutoff = 0.05, lfcCut = 0.58, 
-                      minCells = 25, outDir = paste0("./output/", outName, "/"), title = "mregDC_vs_cDC2", idents.1_NAME = "mregDC", idents.2_NAME = "cDC2",
+                      minCells = 25, outDir = paste0("../output/", outName, "/"), title = "mregDC_vs_cDC2", idents.1_NAME = "mregDC", idents.2_NAME = "cDC2",
                       returnVolc = T, doLinDEG = F, paired = T, addLabs = NULL,lowFilter = T, dwnSam = F
                      )
 
 p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c1 (mregDC)", leftLab = "Up in c0 (cDC2)") + labs(x = "log2(FC) mregDC vs cDC2")
 
-ggsave(paste("./output/", outName, "/", outName, "_c1vc0_volcPlot.png", sep = ""), width = 7, height = 7)
+ggsave(paste("../output/", outName, "/", outName, "_c1vc0_volcPlot.png", sep = ""), width = 7, height = 7)
 
 
-p <- plotGSEA(pwdTOgeneList = "./output/dc_naive6/mregDC_vs_cDC2_all_genes.csv", category = "C2", upOnly = T, termsTOplot = 15)
-ggsave(paste("./output/", outName, "/", outName, "_enriched_terms.png", sep = ""), width = 9, height =7)
+p <- plotGSEA(pwdTOgeneList = "../output/dc_naive6/mregDC_vs_cDC2_all_genes.csv", category = "C2", upOnly = T, termsTOplot = 15)
+ggsave(paste("../output/", outName, "/", outName, "_enriched_terms.png", sep = ""), width = 9, height =7)
 
-p <- plotGSEA(pwdTOgeneList = "./output/dc_naive6/mregDC_vs_cDC2_all_genes.csv", category = "C2",subcategory = "CP:REACTOME")
-ggsave(paste("./output/", outName, "/", outName, "_enriched_terms_2.png", sep = ""), width = 9, height =7)
+p <- plotGSEA(pwdTOgeneList = "../output/dc_naive6/mregDC_vs_cDC2_all_genes.csv", category = "C2",subcategory = "CP:REACTOME")
+ggsave(paste("../output/", outName, "/", outName, "_enriched_terms_2.png", sep = ""), width = 9, height =7)
 
 
 ### Fig extra: genes that define cDC1
 p_volc <- btwnClusDEG(seu.obj = seu.obj, groupBy = "clusterID_sub", idents.1 = "2", idents.2 = "0", bioRep = "name",padj_cutoff = 0.05, lfcCut = 0.58, 
-                        minCells = 5, outDir = paste0("./output/", outName, "/"), title = "cDC1_vs_cDC2", idents.1_NAME = "c2", idents.2_NAME = "c0", returnVolc = T, doLinDEG = F, paired = T, addLabs = NULL,lowFilter = T, dwnSam = F
+                        minCells = 5, outDir = paste0("../output/", outName, "/"), title = "cDC1_vs_cDC2", idents.1_NAME = "c2", idents.2_NAME = "c0", returnVolc = T, doLinDEG = F, paired = T, addLabs = NULL,lowFilter = T, dwnSam = F
                     )
 
 p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c1 (cDC1)", leftLab = "Up in c0 (cDC2)") + labs(x = "log2(FC) cDC1 vs cDC2")
 
-ggsave(paste("./output/", outName, "/", outName, "_c2vc0_volcPlot.png", sep = ""), width = 7, height = 7)
+ggsave(paste("../output/", outName, "/", outName, "_c2vc0_volcPlot.png", sep = ""), width = 7, height = 7)
 
 
 ### Fig extra: genes that define pDC1
 p_volc <- btwnClusDEG(seu.obj = seu.obj, groupBy = "clusterID_sub", idents.1 = "3", idents.2 = "0", bioRep = "name",padj_cutoff = 0.05, lfcCut = 0.58, 
-                        minCells = 5, outDir = paste0("./output/", outName, "/"), title = "pDC_vs_cDC2", idents.1_NAME = "c3", idents.2_NAME = "c0", returnVolc = T, doLinDEG = F, paired = T, addLabs = NULL,lowFilter = T, dwnSam = F
+                        minCells = 5, outDir = paste0("../output/", outName, "/"), title = "pDC_vs_cDC2", idents.1_NAME = "c3", idents.2_NAME = "c0", returnVolc = T, doLinDEG = F, paired = T, addLabs = NULL,lowFilter = T, dwnSam = F
                     )
 
 p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c3 (pDC)", leftLab = "Up in c0 (cDC2)") + labs(x = "log2(FC) pDC vs cDC2")
 
-ggsave(paste("./output/", outName, "/", outName, "_c3vc0_volcPlot.png", sep = ""), width = 7, height = 7)
+ggsave(paste("../output/", outName, "/", outName, "_c3vc0_volcPlot.png", sep = ""), width = 7, height = 7)
 
 
 ################################################

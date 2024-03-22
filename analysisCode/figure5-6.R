@@ -1,24 +1,24 @@
 #!/usr/bin/Rscript
 
 #load custom functions & packages
-source("/pl/active/dow_lab/dylan/repos/K9-PBMC-scRNAseq/analysisCode/customFunctions.R")
-               
+source("./customFunctions.R")
+library(singleseqgset)
+
 #######################################################################
 #######   subset and recluster on macropahge and osteoclasts   ########
 #######################################################################
 
 #load in all cell object and add metadata
-seu.obj <- readRDS(file = "./output/s3/naive6_QCfilter_2000Feats_res0.8_dims45_dist0.35_neigh40_S3.rds")
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "majorID")
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "freqID")
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "id")
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "tumorO")
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./refColz.csv", groupBy = "orig.ident_2", metaAdd = "name")
+seu.obj <- readRDS(file = "../output/s3/naive6_QCfilter_2000Feats_res0.8_dims45_dist0.35_neigh40_S3.rds")
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "majorID")
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "freqID")
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "id")
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "tumorO")
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/refColz.csv", groupBy = "orig.ident_2", metaAdd = "name")
 
 sorted_labels <- sort(unique(seu.obj$name))
 seu.obj$name <- factor(seu.obj$name, levels = sorted_labels)
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./refColz.csv", groupBy = "name", metaAdd = "colz")
-
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/refColz.csv", groupBy = "name", metaAdd = "colz")
 
 #subset on macs as ID'd on the total myeloid subset
 seu.obj <- subset(seu.obj,
@@ -26,17 +26,17 @@ seu.obj <- subset(seu.obj,
                   majorID ==  "mac" | majorID ==  "oc") 
 
 
-seu.obj <- indReClus(seu.obj = seu.obj, outDir = "./output/s2/", subName = "macOC_QCfiltered_2500", preSub = T, nfeatures = 2500,
+seu.obj <- indReClus(seu.obj = seu.obj, outDir = "../output/s2/", subName = "macOC_QCfiltered_2500", preSub = T, nfeatures = 2500,
                       vars.to.regress = c("percent.mt")
                        )
 
 
-seu.obj <- readRDS(file = "./output/s2/macOC_QCfiltered_2500_S2.rds")
-clusTree(seu.obj = seu.obj, dout = "./output/clustree/", outName = "macOC_QCfiltered_2500", test_dims = c(45,40,35), algorithm = 3, prefix = "integrated_snn_res.")
+seu.obj <- readRDS(file = "../output/s2/macOC_QCfiltered_2500_S2.rds")
+clusTree(seu.obj = seu.obj, dout = "../output/clustree/", outName = "macOC_QCfiltered_2500", test_dims = c(45,40,35), algorithm = 3, prefix = "integrated_snn_res.")
 
 
 
-seu.obj <- dataVisUMAP(seu.obj = seu.obj, outDir = "./output/s3/", outName = "macOC_QCfiltered_2500", final.dims = 40, final.res = 0.5, stashID = "clusterID_sub", 
+seu.obj <- dataVisUMAP(seu.obj = seu.obj, outDir = "../output/s3/", outName = "macOC_QCfiltered_2500", final.dims = 40, final.res = 0.5, stashID = "clusterID_sub", 
                         algorithm = 3, prefix = "integrated_snn_res.", min.dist = 0.25, n.neighbors = 40, assay = "integrated", saveRDS = T,
                         features = c("PTPRC", "CD3E", "CD8A", "GZMA", 
                                      "IL7R", "ANPEP", "FLT3", "DLA-DRA"))
@@ -47,27 +47,27 @@ seu.obj.sub <- subset(seu.obj, invert = T,
                   clusterID_sub ==  "7") 
 
 
-seu.obj <- dataVisUMAP(seu.obj = seu.obj.sub, outDir = "./output/s3/", outName = "macOC_QCfiltered_2500", final.dims = 40, final.res = 0.6, stashID = "clusterID_sub", 
+seu.obj <- dataVisUMAP(seu.obj = seu.obj.sub, outDir = "../output/s3/", outName = "macOC_QCfiltered_2500", final.dims = 40, final.res = 0.6, stashID = "clusterID_sub", 
                         algorithm = 3, prefix = "integrated_snn_res.", min.dist = 0.25, n.neighbors = 40, assay = "integrated", saveRDS = T,
                         features = c("PTPRC", "CD3E", "CD8A", "GZMA", 
                                      "IL7R", "ANPEP", "FLT3", "DLA-DRA"))
 
-##########################################
-#######   Begin MAC/OC analysis   ########
-##########################################
+#######################################
+#######   Begin MAC analysis   ########
+#######################################
 
 ### Resume the journey
-seu.obj <- readRDS(file = "./output/s3/macOC_QCfiltered_2500_res0.6_dims40_dist0.25_neigh40_S3.rds")
+seu.obj <- readRDS(file = "../output/s3/macOC_QCfiltered_2500_res0.6_dims40_dist0.25_neigh40_S3.rds")
 sorted_labels <- paste(sort(as.integer(levels(seu.obj$clusterID_sub))))
 seu.obj$clusterID_sub <- factor(seu.obj$clusterID_sub, levels = sorted_labels)
 sorted_labels <- sort(unique(seu.obj$name))
 seu.obj$name <- factor(seu.obj$name, levels = sorted_labels)
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./refColz.csv", groupBy = "name", metaAdd = "colz")
-outName <- "mac-oc_naive6"
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/refColz.csv", groupBy = "name", metaAdd = "colz")
+outName <- "mac_naive6"
 
 
 ### Create violin plots for cell ID
-vilnPlots(seu.obj = seu.obj, groupBy = "clusterID_sub", numOfFeats = 24, outName = "macOC__regCYCLE_QCfiltered_2500", outDir = "./output/viln/myeloid/", outputGeneList = T, filterOutFeats = c("^MT-", "^RPL", "^ENSCAF", "^RPS"), assay = "RNA", 
+vilnPlots(seu.obj = seu.obj, groupBy = "clusterID_sub", numOfFeats = 24, outName = "macOC_QCfiltered_2500", outDir = "../output/viln/myeloid/", outputGeneList = T, filterOutFeats = c("^MT-", "^RPL", "^RPS"), assay = "RNA", 
                       min.pct = 0.25, only.pos = T
                      )
 
@@ -95,7 +95,7 @@ ct.l3 <- c(ct.l3,seu.obj$majorID)
 features <- c("nCount_RNA", "nFeature_RNA", "percent.mt")
 p <- prettyFeats(seu.obj = seu.obj, nrow = 1, ncol = 3, features = features, 
                  color = "black", order = F, pt.size = 0.0000001, title.size = 18)
-ggsave(paste("./output/", outName, "/", outName, "_QC_feats.png", sep = ""), width = 9, height = 3)
+ggsave(paste("../output/", outName, "/", outName, "_QC_feats.png", sep = ""), width = 9, height = 3)
 
 
 #set colors
@@ -117,7 +117,7 @@ pi <- DimPlot(seu.obj,
 pi <- cusLabels(plot = pi, shape = 21, size = 8, alpha = 0.85, 
                 labCol = c("black", "white","white","black","black","black","black","white","black","black","white","black")) + NoLegend() + theme(axis.title = element_blank(),
                                                                                    panel.border = element_blank())
-ggsave(paste("./output/", outName, "/", outName, "_rawUMAP_clusterID_sub_mac.png", sep = ""), width = 7, height = 7)
+ggsave(paste("../output/", outName, "/", outName, "_rawUMAP_clusterID_sub_mac.png", sep = ""), width = 7, height = 7)
 
 
 ### Fig extra: Create raw UMAP with original clusters
@@ -131,38 +131,7 @@ pi <- DimPlot(seu.obj,
 )
 pi <- cusLabels(plot = pi, shape = 21, size = 8, alpha = 0.85) + NoLegend() + theme(axis.title = element_blank(),
                                                                                    panel.border = element_blank())
-ggsave(paste("./output/", outName, "/", outName, "_rawUMAP_clusterID_mac.png", sep = ""), width = 7, height = 7)
-
-
-### Fig extra: reference map using PBMC data
-reference <- readRDS(file = "../../k9_PBMC_scRNA/analysis/output/s3/final_dataSet_HvO.rds")
-reference[['integrated']] <- as(object = reference[['integrated']] , Class = "SCTAssay")
-
-DefaultAssay(reference) <- "integrated"
-
-anchors <- FindTransferAnchors(
-    reference = reference,
-    query = seu.obj,
-    normalization.method = "SCT",
-    reference.reduction = "pca", #reference.reduction = "umap",
-    dims= 1:50 #dims= 1:2
-)
-
-predictions <- TransferData(anchorset = anchors, refdata = reference$celltype.l3,
-    dims = 1:50)
-seu.obj <- AddMetaData(seu.obj, metadata = predictions)
-
-pi <- DimPlot(seu.obj, 
-              reduction = "umap", 
-              group.by = "predicted.id",
-              #cols = levels(seu.obj.ds$colz), #check colorization is correct
-              pt.size = 0.25,
-              label = T,
-              label.box = T,
-              shuffle = F
-)
-pi <- formatUMAP(plot = pi)
-ggsave(paste("./output/", outName, "/", outName, "_umap_Predicted.png", sep = ""), width = 7, height = 7)
+ggsave(paste("../output/", outName, "/", outName, "_rawUMAP_clusterID_mac.png", sep = ""), width = 7, height = 7)
 
 
 ### Fig 5b-1: Plot key feats
@@ -174,7 +143,7 @@ features <- c("DLA-DRA", "DLA-DMA", "CD80",
 
 p <- prettyFeats(seu.obj = seu.obj, nrow = 4, ncol =  3, features = features, 
                  color = "black", order = F, pt.size = 0.0000001, title.size = 24, noLegend = T)
-ggsave(paste("./output/", outName, "/", outName, "_key_feats_1.png", sep = ""), width = 6, height = 8, scale = 2)
+ggsave(paste("../output/", outName, "/", outName, "_key_feats_1.png", sep = ""), width = 6, height = 8, scale = 2)
 
 
 ### Fig 5b-2: Plot key feats
@@ -186,7 +155,7 @@ features <- c("SELL", "IL1B","VCAN",
 
 p <- prettyFeats(seu.obj = seu.obj, nrow = 4, ncol =  3, features = features, 
                  color = "black", order = F, pt.size = 0.0000001, title.size = 24, noLegend = T)
-ggsave(paste("./output/", outName, "/", outName, "_key_feats_2.png", sep = ""), width = 6, height = 8, scale = 2)
+ggsave(paste("../output/", outName, "/", outName, "_key_feats_2.png", sep = ""), width = 6, height = 8, scale = 2)
 
 
 ### Fig 5c feats that define on heatmap
@@ -233,7 +202,7 @@ hc <- hclust(as.dist(M),method="complete")
 mat <- scale(as.matrix(clusAvg_expression))
 
 #plot the data
-outfile <- paste("./output/", outName, "/", outName, "_heatMap.png", sep = "")
+outfile <- paste("../output/", outName, "/", outName, "_heatMap.png", sep = "")
 png(file = outfile, width=6000, height=2000, res=400)
 par(mfcol=c(1,1))                    
 ht <- Heatmap(mat,
@@ -256,15 +225,12 @@ dev.off()
 
 ### Fig 5d: Feats that define LA-TAM subsets
 p_volc <- btwnClusDEG(seu.obj = seu.obj, groupBy = "clusterID_sub", idents.1 = "3", idents.2 = "2", bioRep = "name",padj_cutoff = 0.05, lfcCut = 0.58, 
-                        minCells = 25, outDir = paste0("./output/", outName, "/"), title = "c3_vs_c2", idents.1_NAME = "LA_TAM_C1QC_hi", idents.2_NAME = "LA_TAM_SPP1_hi", returnVolc = T, doLinDEG = F, paired = T, addLabs = NULL,lowFilter = T, dwnSam = F
+                        minCells = 25, outDir = paste0("../output/", outName, "/"), title = "c3_vs_c2", idents.1_NAME = "LA_TAM_C1QC_hi", idents.2_NAME = "LA_TAM_SPP1_hi", returnVolc = T, doLinDEG = F, paired = T, addLabs = NULL,lowFilter = T, dwnSam = F
                     )
 
 p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c3", leftLab = "Up in c2") + labs(x = "log2(FC) c3 vs c2")
 
-ggsave(paste("./output/", outName, "/", outName, "_c3vc2_volcPlot.png", sep = ""), width = 7, height = 7)
-
-p <- plotGSEA(pwdTOgeneList = "./mac-oc_naive6/c3_vs_c2_all_genes.csv", category = "C2", subcategory = "CP:REACTOME")
-ggsave(paste("./output/", outName, "/", outName, "_enriched_terms_c9-c6.png", sep = ""), width = 9, height =7)
+ggsave(paste("../output/", outName, "/", outName, "_c3vc2_volcPlot.png", sep = ""), width = 7, height = 7)
 
 
 ### Fig 5e & Supp: M1 vs M2 signatures
@@ -288,7 +254,7 @@ ecScores <- majorDot(seu.obj = seu.obj, groupBy = "clusterID_sub",
                                                                    axis.text.x = element_text(angle=0, hjust = 0.5)
                                             ) + scale_y_discrete(position = "right") + scale_colour_continuous(name="Enrichment score", type = "viridis") + NoLegend()
 
-ggsave(paste("./output/", outName, "/", outName, "_dotPlot_ecScores.png", sep = ""), width = 6,height = 1)
+ggsave(paste("../output/", outName, "/", outName, "_dotPlot_ecScores.png", sep = ""), width = 6,height = 1)
 
 
 ### Fig extra: plot each indiviudal feature
@@ -324,21 +290,21 @@ plots$`Enrichment score` <- plots$`Enrichment score` + theme(axis.text.x = eleme
 p <- Reduce( `+`, plots ) +  plot_layout(guides = "collect", design = patch, 
                                                                              height = unname(unlist(lapply(modulez, length)))/sum(unname(unlist(lapply(modulez, length)))))
 
-ggsave(paste("./output/", outName, "/", outName, "_dotPlot_ecScores_2.png", sep = ""), width = 6,height=7)
+ggsave(paste("../output/", outName, "/", outName, "_dotPlot_ecScores_2.png", sep = ""), width = 6,height=7)
 
 
 ### Figure 5f: genes that define M1 vs M2
 p_volc <- btwnClusDEG(seu.obj = seu.obj, groupBy = "clusterID_sub", idents.1 = "11", idents.2 = "3", bioRep = "name",padj_cutoff = 0.05, lfcCut = 0.58, 
-                        minCells = 5, outDir = paste0("./output/", outName, "/"), title = "c11_vs_c3", idents.1_NAME = "CD4pos_TIM", idents.2_NAME = "LA_TAM_C1QC_hi", returnVolc = T, doLinDEG = F, paired = T, addLabs = NULL,lowFilter = T, dwnSam = F
+                        minCells = 5, outDir = paste0("../output/", outName, "/"), title = "c11_vs_c3", idents.1_NAME = "CD4pos_TIM", idents.2_NAME = "LA_TAM_C1QC_hi", returnVolc = T, doLinDEG = F, paired = T, addLabs = NULL,lowFilter = T, dwnSam = F
                     )
 
 p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c11", leftLab = "Up in c3") + labs(x = "log2(FC) c11 vs c3")
 
-ggsave(paste("./output/", outName, "/", outName, "_CD4pos_TIMvLA_TAM_C1QC_hi_volcPlot.png", sep = ""), width = 7, height = 7)
+ggsave(paste("../output/", outName, "/", outName, "_CD4pos_TIMvLA_TAM_C1QC_hi_volcPlot.png", sep = ""), width = 7, height = 7)
 
 
 ### Fig 6g: make heatmap M1 vs M2
-geneLists <- read.csv("./output/mac-oc_naive6/CD4pos_TIM_vs_LA_TAM_C1QC_hi_all_genes.csv")
+geneLists <- read.csv("../output/mac-oc_naive6/CD4pos_TIM_vs_LA_TAM_C1QC_hi_all_genes.csv")
 
 #extract top 20 feats for each direction of the conntrast
 geneListUp <- geneLists %>% arrange(padj) %>% filter(log2FoldChange > 0) %>% .$gene
@@ -370,7 +336,7 @@ mat <- scale(as.matrix(clusAvg_expression))
 mat <- mat[,feats_forHeat]
 
 #plot the data
-outfile <- paste("./output/", outName, "/", outName, "_m1vm2_heatMap.png", sep = "")
+outfile <- paste("../output/", outName, "/", outName, "_m1vm2_heatMap.png", sep = "")
 png(file = outfile, width=4000, height=4000, res=400)
 par(mfcol=c(1,1))                    
 ht <- Heatmap(t(mat),
@@ -396,7 +362,6 @@ dev.off()
 ### Fig 5h: make heatmap GSEA HALLMARK terms using singleseqgset
 seu.obj$clusterID_sub <- droplevels(seu.obj$clusterID_sub)
 
-library(singleseqgset)
 can_gene_sets <- msigdbr(species = "dog", category = "H")
 
 can_gene_lists <- unique(can_gene_sets$gs_name)
@@ -433,7 +398,7 @@ library("circlize")
 library("RColorBrewer")
 
 #plot the results
-outfile <- paste("./output/", outName, "/", outName, "_hallmarks_heatMap.png", sep = "")
+outfile <- paste("../output/", outName, "/", outName, "_hallmarks_heatMap.png", sep = "")
 png(file = outfile, width=6000, height=6000, res=400)
 par(mfcol=c(1,1))                    
 ht <- Heatmap(mat,
@@ -459,41 +424,35 @@ draw(ht, padding = unit(c(0, 0, 0, 250), "mm"), heatmap_legend_side = "top")
 dev.off()
 
 
-################################################
+##########################################
 #######   END mac cell analysis   ########
-################################################
+##########################################
 
-
+###########################################
+#######   BEGIN oc cell analysis   ########
+###########################################
 
 ### OC analysis
 ### Resume the journey
-seu.obj <- readRDS(file = "./output/s3/macOC_QCfiltered_2500_res0.6_dims40_dist0.25_neigh40_S3.rds")
+seu.obj <- readRDS(file = "../output/s3/macOC_QCfiltered_2500_res0.6_dims40_dist0.25_neigh40_S3.rds")
 sorted_labels <- paste(sort(as.integer(levels(seu.obj$clusterID_sub))))
 seu.obj$clusterID_sub <- factor(seu.obj$clusterID_sub, levels = sorted_labels)
 sorted_labels <- sort(unique(seu.obj$name))
 seu.obj$name <- factor(seu.obj$name, levels = sorted_labels)
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./refColz.csv", groupBy = "name", metaAdd = "colz")
-outName <- "myeloid_naive6"
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/refColz.csv", groupBy = "name", metaAdd = "colz")
+outName <- "oc_naive6"
 
 Idents(seu.obj) <- "clusterID_sub"
 seu.obj <- RenameIdents(seu.obj, c("0" = "TAM_ACT", "1" = "TAM_INT", 
                                    "2" = "LA-TAM_SPP2_hi", "3" = "LA-TAM_C1QC_hi",
-                                   "4" = "CD4-_TIM","5" = "Cycling_OC",
+                                   "4" = "CD4-_TIM","5" = "Cycling_OC_1",
                                    "6" = "Mature_OC", "7" = "ANGIO_TAM", 
-                                   "8" = "Cycling_OC", "9" = "CD320_OC", 
+                                   "8" = "Cycling_OC_2", "9" = "CD320_OC", 
                                    "10" = "IFN-TAM", "11" = "CD4+_TIM")
                        )
 
 seu.obj$majorID <- Idents(seu.obj)
 ct.l3 <- c(ct.l3,seu.obj$majorID)
-
-
-### Create violin plots for cell ID
-vilnPlots(seu.obj = seu.obj, groupBy = "clusterID_sub", numOfFeats = 24, outName = "macOC_QCfiltered_2500", outDir = "./output/viln/myeloid/", outputGeneList = T, filterOutFeats = c("^MT-", "^RPL", "^ENSCAF", "^RPS"), assay = "RNA", 
-                      min.pct = 0.25, only.pos = T
-                     )
-
-
 
 colz <- gg_color_hue(12)
 colz[c(1,2,3,4,5,8,11,12)] <- c("grey60","grey75","grey85","grey90","grey70","grey80","grey88","grey79")
@@ -511,16 +470,16 @@ pi <- DimPlot(seu.obj,
 )
 pi <- cusLabels(plot = pi, shape = 21, size = 8, alpha = 0.85, labCol = c("black","black","black","black","black","white","black","black","black","black","black","black")) + NoLegend() + theme(axis.title = element_blank(),
                                                                                    panel.border = element_blank())
-ggsave(paste("./output/", outName, "/", outName, "_rawUMAP_clusterID_sub_oc.png", sep = ""), width = 7, height = 7)
-       
-       
+ggsave(paste("../output/", outName, "/", outName, "_rawUMAP_clusterID_sub_oc.png", sep = ""), width = 7, height = 7)
+
+
 ### Fig 6b: Plot key feats
 features <- c("STMN1","ATP6V0D2", "TNIP3", 
               "TOP2A","CTSK", "CD320",
               "MYBL2","HYAL1","SRM")
 p <- prettyFeats(seu.obj = seu.obj, nrow = 3, ncol =  3, features = features, 
                  color = "black", order = F, pt.size = 0.01, title.size = 20, titles = features, noLegend = T)
-ggsave(paste("./output/", outName, "/", outName, "_key_feats.png", sep = ""), width = 6, height = 6, scale = 2)
+ggsave(paste("../output/", outName, "/", outName, "_key_feats.png", sep = ""), width = 6, height = 6, scale = 2)
 
 
 
@@ -528,7 +487,6 @@ ggsave(paste("./output/", outName, "/", outName, "_key_feats.png", sep = ""), wi
 colz <- gg_color_hue(12)
 colz[c(1,2,3,4,5,8,11,12)] <- c("#8C94BF","#00366C","#023FA5","#9BBFDD","#5295D4","#3267AD","#0066A5","#D0E4FF")
 colz[c(6,7,9,10)] <- c("#645A9F","#AE8FD1","#EDCEF7","#CFADE5")
-
 
 seu.obj$type <- seu.obj$majorID
 
@@ -545,59 +503,57 @@ hc <- hclust(as.dist(M),method="complete")
 
 ggtree(as.phylo(hc)) + geom_tiplab(offset = 0.006) + xlim(NA,.10) + geom_tippoint(shape = 21,size = 8,alpha = 1, colour="black", fill = colz) + geom_tiplab(aes(label = as.character(seq(1:23)-1)), color = c("black","white","white","black","black","white","black","black","black","black","white","black"), hjust = 0.5)
 
-ggsave(paste("./output/", outName, "/", outName, "_oc_hc.png", sep = ""), width = 4, height = 7)
+ggsave(paste("../output/", outName, "/", outName, "_oc_hc.png", sep = ""), width = 4, height = 7)
 
 
 ### Fig 6d: c6 vs mac
 p_volc <- btwnClusDEG(seu.obj = seu.obj, groupBy = "clusterID_sub", idents.1 = "6", idents.2 = c("0","1","2","3"), bioRep = "name",
-                      padj_cutoff = 0.05, lfcCut = 0.58, minCells = 25, outDir = paste0("./output/", outName, "/"), 
+                      padj_cutoff = 0.05, lfcCut = 0.58, minCells = 25, outDir = paste0("../output/", outName, "/"), 
                       title = "oc_c6_vs_mac", idents.1_NAME = "MATURE_OC", idents.2_NAME = "MAC_c0-c3", 
                       returnVolc = T, doLinDEG = F, paired = T, addLabs = c("CTSK","ACP5"),lowFilter = T, dwnSam = F
                      )
 
-p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c6", leftLab = "Up in mac") + labs(x = "log2(FC) oc_c3 vs mac")
+p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c6", leftLab = "Up in mac") + labs(x = "log2(FC) oc_c3 vs mac") + NoLegend()
 
-ggsave(paste("./output/", outName, "/", outName, "_c6vcmac_volcPlot.png", sep = ""), width = 7, height = 7)
+ggsave(paste("../output/", outName, "/", outName, "_c6vcmac_volcPlot.png", sep = ""), width = 7, height = 7)
 
 
 ### Fig supp: c9 vs c6
 p_volc <- btwnClusDEG(seu.obj = seu.obj, groupBy = "clusterID_sub", idents.1 = "9", idents.2 = "6", bioRep = "name",
-                      padj_cutoff = 0.05, lfcCut = 0.58, minCells = 5, outDir = paste0("./output/", outName, "/"), 
+                      padj_cutoff = 0.05, lfcCut = 0.58, minCells = 5, outDir = paste0("../output/", outName, "/"), 
                       title = "oc_c9_vs_6", idents.1_NAME = "CD320_OC", idents.2_NAME = "MATURE_OC", 
                       returnVolc = T, doLinDEG = F, paired = T, addLabs = "",lowFilter = T, dwnSam = F
                      )
 
-p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c9", leftLab = "Up in c6") + labs(x = "log2(FC) oc_c9 vs c6")
+p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c9", leftLab = "Up in c6") + labs(x = "log2(FC) oc_c9 vs c6") + NoLegend()
 
-ggsave(paste("./output/", outName, "/", outName, "_c9vc6_volcPlot.png", sep = ""), width = 7, height = 7)
+ggsave(paste("../output/", outName, "/", outName, "_c9vc6_volcPlot.png", sep = ""), width = 7, height = 7)
 
 ### Fig supp: c9 vs mac
 p_volc <- btwnClusDEG(seu.obj = seu.obj, groupBy = "clusterID_sub", idents.1 = "9", idents.2 = c("0","1","2","3"), bioRep = "name",
-                      padj_cutoff = 0.05, lfcCut = 0.58, minCells = 5, outDir = paste0("./output/", outName, "/"), 
+                      padj_cutoff = 0.05, lfcCut = 0.58, minCells = 5, outDir = paste0("../output/", outName, "/"), 
                       title = "oc_c9_vs_mac", idents.1_NAME = "CD320_OC", idents.2_NAME = "MAC_c0-c3", 
                       returnVolc = T, doLinDEG = F, paired = T, addLabs = "",lowFilter = T, dwnSam = F
                      )
 
+p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c9", leftLab = "Up in mac") + labs(x = "log2(FC) oc_c9 vs mac") + NoLegend()
+
+ggsave(paste("../output/", outName, "/", outName, "_c9vmac_volcPlot.png", sep = ""), width = 7, height = 7)
 
 
-p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c9", leftLab = "Up in mac") + labs(x = "log2(FC) oc_c9 vs mac")
-
-ggsave(paste("./output/", outName, "/", outName, "_c9vmac_volcPlot.png", sep = ""), width = 7, height = 7)
-
-
-p <- plotGSEA(pwdTOgeneList = "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/myeloid_naive6/MATURE_OC_vs_MAC_c0-c3_all_genes.csv", termsTOplot = 15, upOnly = T, category = "C5", subcategory = "GO:BP", dwnCol = "red")
-ggsave(paste("./output/", outName, "/", outName, "_enriched_terms_c6vMac.png", sep = ""), width = 9, height = 7)
-
-p <- plotGSEA(pwdTOgeneList = "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/myeloid_naive6/c9_vs_mac_all_genes.csv", category = "C5", subcategory = NULL)
-ggsave(paste("./output/", outName, "/", outName, "_enriched_terms_c9vMac.png", sep = ""), width = 9, height =7)
-
-p <- plotGSEA(pwdTOgeneList = "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/myeloid_naive6/c9_vs_c6_all_genes.csv", category = "C5", subcategory = NULL)
-ggsave(paste("./output/", outName, "/", outName, "_enriched_terms_c9Vc6.png", sep = ""), width = 9, height =7)
+p <- plotGSEA(pwdTOgeneList = "../output/oc_naive6/MATURE_OC_vs_MAC_c0-c3_all_genes.csv", termsTOplot = 15, upOnly = T, category = "C5", subcategory = "GO:BP", dwnCol = "red")
+ggsave(paste("../output/", outName, "/", outName, "_enriched_terms_c6vMac.png", sep = ""), width = 9, height = 7)
 
 
 ### Fig 6e: intersection of CD320+ OC DEGs
-geneLists.hu <- read.csv("/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/myeloid_naive6/CD320_OC_vs_MAC_c0-c3_all_genes.csv")
-geneLists.can <- read.csv("/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/myeloid_naive6/CD320_OC_vs_MATURE_OC_all_genes.csv")
+# NOTE: this code was abopted from the human - canine comparision code.
+# Althought the variables and values indicate two species are being used,
+# that is not the case. All analysis in this case is canine and the "human"
+# associated varaibles are comparing CD320_OC to macropahge, while the
+# "canine" associated varaibles are comparing CD320_OC to mature osteoclasts
+
+geneLists.hu <- read.csv("../output/oc_naive6/CD320_OC_vs_MAC_c0-c3_all_genes.csv")
+geneLists.can <- read.csv("../output/oc_naive6/CD320_OC_vs_MATURE_OC_all_genes.csv")
 cONtrast <- c("c9vMAC", "c9vc6")
 
 geneLists.hu <- geneLists.hu[geneLists.hu$log2FoldChange > 0,]
@@ -635,7 +591,7 @@ mutate(sig = ifelse(signed_pVal_can*signed_pVal_hu == 0,signed_pVal_can+signed_p
                             ),
        
        label = ifelse(sig != 0, gene, NA)
-      )  %>% arrange(-abs(sig)) %>% group_by(direction) %>% #arrange(p_val_adj) %>% 
+      )  %>% arrange(-abs(sig)) %>% group_by(direction) %>% 
             mutate(lab=ifelse(row_number() <= nlab
                               & signed_pVal_can*signed_pVal_hu != 0 , gene, ifelse(signed_pVal_can*signed_pVal_hu == 0 & row_number() <= axisCnt, gene, NA)), 
                    lab_col=case_when(direction == "up" ~ colUp,
@@ -661,8 +617,7 @@ ggplot(geneList, aes(x=signed_pVal_hu,y=signed_pVal_can)) + geom_hline(yintercep
 geom_vline(xintercept=0,linetype=2) + 
 geom_point() + 
 geom_label_repel(max.overlaps = Inf, size=1.5, label = geneList$lab, color = geneList$lab_col, show.legend = F,seed = 777) + 
-theme_classic() + #scale_x_symmetric(mid = 0) + scale_y_symmetric(mid = 0) + 
-#geom_text(data = annotationz, aes(x = xpos,y = ypos, hjust = hjustvar, vjust = vjustvar, label = cntz),size = 6, color = annotationz$colz) +
+theme_classic() + 
 labs(x = "c9 vs mac DE signed log10(p.adj)",
      y = "c9 vs c6 DE signed log10(p.adj)",
      title = "Intersection of DEGs c9 vs mac/c6"
@@ -671,131 +626,8 @@ labs(x = "c9 vs mac DE signed log10(p.adj)",
                                              axis.line = element_blank())
 
 
-ggsave(paste("./output/", outName, "/", outName, "_pSigned_c9.png", sep = ""), width = 4,height=4)
+ggsave(paste("../output/", outName, "/", outName, "_pSigned_c9.png", sep = ""), width = 4,height=4)
 
-
-### run SCENIC
-source("/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/scenicFunctions.R")
-
-seu.obj <- readRDS(file = "../output/s3/macOC_QCfiltered_2500_res0.6_dims40_dist0.25_neigh40_S3.rds")
-sorted_labels <- paste(sort(as.integer(levels(seu.obj$clusterID_sub))))
-seu.obj$clusterID_sub <- factor(seu.obj$clusterID_sub, levels = sorted_labels)
-sorted_labels <- sort(unique(seu.obj$name))
-seu.obj$name <- factor(seu.obj$name, levels = sorted_labels)
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "../refColz.csv", groupBy = "name", metaAdd = "colz")
-outName <- "myeloid_naive6"
-
-
-Idents(seu.obj) <- "clusterID_sub"
-seu.obj <- RenameIdents(seu.obj, c("0" = "TAM_ACT", "1" = "TAM_INT", 
-                                   "2" = "LA-TAM_SPP2_hi", "3" = "LA-TAM_C1QC_hi",
-                                   "4" = "CD4-_TIM","5" = "Cycling_OC",
-                                   "6" = "Mature_OC", "7" = "ANGIO_TAM", 
-                                   "8" = "Cycling_OC", "9" = "CD320_OC", 
-                                   "10" = "IFN-TAM", "11" = "CD4+_TIM")
-                       )
-
-
-seu.obj$majorID <- Idents(seu.obj)
-
-seu.obj <- subset(seu.obj,
-                  subset = 
-                  majorID ==  "Mature_OC" | majorID ==  "CD320_myeloid" | majorID == "Cycling_OC") 
-
-
-seu.obj <- NormalizeData(seu.obj)
-exprMat <- seu.obj@assays$RNA@data
-cellInfo <- data.frame(CellType=seu.obj$majorID)
-
-cellInfo$nGene <- colSums(exprMat>0)
-
-cellInfo <- data.frame(cellInfo)
-saveRDS(cellInfo, file="int/cellInfo.Rds")
-
-colVars <- list(CellType=c("Mature_OC"="forestgreen", 
-                           "CD320_myeloid"="magenta4", 
-                           "Cycling_OC"="hotpink"))
-colVars$CellType <- colVars$CellType[intersect(names(colVars$CellType), cellInfo$CellType)]
-saveRDS(colVars, file="int/colVars.Rds")
-
-
-org <- "hgnc" # or hgnc, or dmel
-dbDir <- "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/risDataBase" # RcisTarget databases location
-myDatasetTitle <- "SCENIC OCs" # choose a name for your analysis
-
-# DbNames <- c("hg19-500bp-upstream-7species.mc9nr.genes_vs_motifs.rankings.feather","hg19-tss-centered-10kb-7species.mc9nr.genes_vs_motifs.rankings.feather")
-DbNames <- c("hg19-500bp-upstream-7species.mc9nr.feather","hg19-tss-centered-10kb-10species.mc9nr.feather")
-names(DbNames) <- c("500bp","10kb")
-scenicOptions <- initializeScenic(org=org, dbDir=dbDir, dbs=DbNames, datasetTitle=myDatasetTitle, nCores=10) 
-
-scenicOptions@inputDatasetInfo$cellInfo <- "int/cellInfo.Rds"
-scenicOptions@inputDatasetInfo$colVars <- "int/colVars.Rds"
-
-genesKept <- geneFiltering(exprMat, scenicOptions=scenicOptions,
-                           minCountsPerGene=3*.01*ncol(exprMat),
-                           minSamples=ncol(exprMat)*.01)
-
-
-exprMat_filtered <- as.matrix(exprMat[genesKept, ])
-runCorrelation(exprMat_filtered, scenicOptions)
-
-
-exprMat_filtered <- log2(exprMat_filtered+1) 
-runGenie3(exprMat_filtered, scenicOptions) #, resumePreviousRun=TRUE
-
-
-scenicOptions <- readRDS("int/scenicOptions.Rds")
-exprMat_log <- log2(exprMat+1)
-scenicOptions@settings$verbose <- TRUE
-scenicOptions@settings$nCores <- 10
-scenicOptions@settings$seed <- 123
-
-scenicOptions <- runSCENIC_1_coexNetwork2modules(scenicOptions)
-scenicOptions <- runSCENIC_2_createRegulons(scenicOptions)
-scenicOptions <- runSCENIC_3_scoreCells(scenicOptions, as.matrix(exprMat_log))
-saveRDS(scenicOptions, file="int/scenicOptions.Rds") # To save status
-
-aucellApp <- plotTsne_AUCellApp(scenicOptions, exprMat_log)
-
-# Save the modified thresholds:
-# newThresholds <- savedSelections$thresholds
-scenicOptions@fileNames$int["aucell_thresholds",1] <- "int/newThresholds.Rds"
-# saveRDS(newThresholds, file=getIntName(scenicOptions, "aucell_thresholds"))
-saveRDS(scenicOptions, file="int/scenicOptions.Rds") 
-
-# scenicOptions <- runSCENIC_4_aucell_binarize(scenicOptions)
-
-
-scenicOptions <- readRDS("/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/oc_reg/int/scenicOptions.Rds")
-cellInfo <- readRDS("/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/oc_reg/int/cellInfo.Rds")
-regulonAUC <- loadInt(scenicOptions, "aucell_regulonAUC")
-regulonAUC <- regulonAUC[onlyNonDuplicatedExtended(rownames(regulonAUC)),]
-
-regulonActivity_byCellType <- sapply(split(rownames(cellInfo), droplevels(cellInfo$CellType)),
-                                     function(cells){base::rowMeans(as.data.frame(getAUC(regulonAUC))[ ,cells])}
-                                    )
-
-regulonActivity_byCellType_Scaled <- t(scale(t(regulonActivity_byCellType), center = T, scale=T))
-
-outfile <- paste("../output/", outName, "/", outName, "_heatMap.png", sep = "")
-png(file = outfile, width=3000, height=10000, res=400)
-ComplexHeatmap::Heatmap(regulonActivity_byCellType_Scaled, name="Regulon activity")
-dev.off()
-                  
-                                    
-topRegulators <- reshape2::melt(regulonActivity_byCellType_Scaled)
-colnames(topRegulators) <- c("Regulon", "CellType", "RelativeActivity")
-topRegulators <- topRegulators[which(topRegulators$RelativeActivity>0),]
-viewTable(topRegulators)
-
-rss <- calcRSS(AUC=getAUC(regulonAUC), cellAnnotation=droplevels(cellInfo[colnames(regulonAUC), "CellType"]))
-saveRDS(rss, file="/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/oc_reg/int/rssBackUP.Rds") 
-
-rss <- readRDS("/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/oc_reg/int/rssBackUP.Rds")
-lapply(levels(droplevels(seu.obj$majorID)),function(x){
-    p <- plotRSS_oneSet(rss, setName = x)
-    ggsave(paste("../output/", outName, "/", outName,"_",x, "_rssPlot.png", sep = ""), width = 4, height = 6)
-})
-
-p <- plotRSS_oneSet(rss, setName = "CD320_myeloid") + ggtitle("CD320_OC")
-ggsave(paste("../output/", outName, "/", outName,"_CD320_OC_rssPlot.png", sep = ""), width = 4, height = 6)
+#########################################
+#######   END oc cell analysis   ########
+#########################################

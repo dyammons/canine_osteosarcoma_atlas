@@ -1,23 +1,23 @@
 #!/usr/bin/Rscript
 
 #load custom functions & packages
-source("/pl/active/dow_lab/dylan/repos/K9-PBMC-scRNAseq/analysisCode/customFunctions.R")
+source("./customFunctions.R")
                
-###################################################################
-#######   subset and recluster on non-neutrophil myeloid   ########
-###################################################################
+########################################################################
+#######   subset and recluster on non-neutrophil myeloid cells  ########
+########################################################################
 
 ##### Load in processed data and complete analysis on all cells
-seu.obj <- readRDS(file = "./output/s3/naive6_QCfilter_2000Feats_res0.8_dims45_dist0.35_neigh40_S3.rds")
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "majorID")
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "freqID")
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "id")
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "tumorO")
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./refColz.csv", groupBy = "orig.ident_2", metaAdd = "name")
+seu.obj <- readRDS(file = "../output/s3/naive6_QCfilter_2000Feats_res0.8_dims45_dist0.35_neigh40_S3.rds")
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "majorID")
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "freqID")
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "id")
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "tumorO")
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/refColz.csv", groupBy = "orig.ident_2", metaAdd = "name")
 
 sorted_labels <- sort(unique(seu.obj$name))
 seu.obj$name <- factor(seu.obj$name, levels = sorted_labels)
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./refColz.csv", groupBy = "name", metaAdd = "colz")
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/refColz.csv", groupBy = "name", metaAdd = "colz")
 
 #subset on non-granuloatue myeloid cells cells
 seu.obj <- subset(seu.obj,
@@ -25,14 +25,14 @@ seu.obj <- subset(seu.obj,
                   majorID ==  "oc" | majorID ==  "mac" | majorID == "dc")
 
 #complete independent reclustering
-seu.obj <- indReClus(seu.obj = seu.obj, outDir = "./output/s2/", subName = "myeloid_QCfiltered_3000", preSub = T, nfeatures = 3000,
+seu.obj <- indReClus(seu.obj = seu.obj, outDir = "../output/s2/", subName = "myeloid_QCfiltered_3000", preSub = T, nfeatures = 3000,
                       vars.to.regress = "percent.mt"
                        )
 
-seu.obj <- readRDS(file = "./output/s2/myeloid_QCfiltered_3000_S2.rds")
-clusTree(seu.obj = seu.obj, dout = "./output/clustree/", outName = "myeloid_QCfiltered_3000", test_dims = c(45,40,35), algorithm = 3, prefix = "integrated_snn_res.")
+seu.obj <- readRDS(file = "../output/s2/myeloid_QCfiltered_3000_S2.rds")
+clusTree(seu.obj = seu.obj, dout = "../output/clustree/", outName = "myeloid_QCfiltered_3000", test_dims = c(45,40,35), algorithm = 3, prefix = "integrated_snn_res.")
 
-seu.obj <- dataVisUMAP(seu.obj = seu.obj, outDir = "./output/s3/", outName = "myeloid_QCfiltered_3000", final.dims = 40, final.res = 0.6, stashID = "clusterID_sub", 
+seu.obj <- dataVisUMAP(seu.obj = seu.obj, outDir = "../output/s3/", outName = "myeloid_QCfiltered_3000", final.dims = 40, final.res = 0.6, stashID = "clusterID_sub", 
                         algorithm = 3, prefix = "integrated_snn_res.", min.dist = 0.2, n.neighbors = 40, assay = "integrated", saveRDS = T,
                         features = c("PTPRC", "CD3E", "CD8A", "GZMA", 
                                      "IL7R", "ANPEP", "FLT3", "DLA-DRA", 
@@ -40,12 +40,12 @@ seu.obj <- dataVisUMAP(seu.obj = seu.obj, outDir = "./output/s3/", outName = "my
                        )
 
 
-################################################
-#######   subset and recluster on non-neutrophil myeloid   ########
-################################################
+###################################################################
+#######    BEGIN analysis of non-neutrophil myeloid cells  ########
+###################################################################
 
 #extract cell barcode annoations from DC file
-seu.obj <- readRDS(file = "./output/s3/dc_QCfiltered_2000_res0.3_dims35_dist0.3_neigh50_S3.rds")
+seu.obj <- readRDS(file = "../output/s3/dc_QCfiltered_2000_res0.3_dims35_dist0.3_neigh50_S3.rds")
 
 Idents(seu.obj) <- "clusterID_sub"
 seu.obj <- RenameIdents(seu.obj, c("0" = "cDC2", "1" = "mregDC", 
@@ -56,7 +56,7 @@ ct.l3 <- Idents(seu.obj)
 
 
 #extract cell barcode annoations from mac-oc file
-seu.obj <- readRDS(file = "./output/s3/macOC_QCfiltered_2500_res0.6_dims40_dist0.25_neigh40_S3.rds")
+seu.obj <- readRDS(file = "../output/s3/macOC_QCfiltered_2500_res0.6_dims40_dist0.25_neigh40_S3.rds")
 
 Idents(seu.obj) <- "clusterID_sub"
 seu.obj <- RenameIdents(seu.obj, c("0" = "TAM_ACT", "1" = "TAM_INT", 
@@ -70,13 +70,13 @@ ct.l3 <- c(ct.l3,Idents(seu.obj))
 
 
 #transfer annoations to all myeloid cell object
-seu.obj <- readRDS(file = "./output/s3/myeloid_QCfiltered_3000_res0.6_dims40_dist0.2_neigh40_S3.rds")
+seu.obj <- readRDS(file = "../output/s3/myeloid_QCfiltered_3000_res0.6_dims40_dist0.2_neigh40_S3.rds")
 sorted_labels <- paste(sort(as.integer(levels(seu.obj$clusterID_sub))))
 seu.obj$clusterID_sub <- factor(seu.obj$clusterID_sub, levels = sorted_labels)
 sorted_labels <- sort(unique(seu.obj$name))
 seu.obj$name <- factor(seu.obj$name, levels = sorted_labels)
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./refColz.csv", groupBy = "name", metaAdd = "colz")
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./myeloid.csv", groupBy = "clusterID_sub", metaAdd = "major")
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/refColz.csv", groupBy = "name", metaAdd = "colz")
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/myeloid.csv", groupBy = "clusterID_sub", metaAdd = "major")
 outName <- "myeloid_naive6"
 
 seu.obj$majorID_sub <- Idents(seu.obj)
@@ -92,7 +92,6 @@ sorted_labels <- c("CD4-_TIM", "CD4+_TIM", "ANGIO_TAM", "TAM_ACT", "TAM_INT", "L
 seu.obj$celltype.l3 <- factor(seu.obj$celltype.l3, levels = sorted_labels)
 
 
-
 ### Fig extra: Create raw UMAP with orig clusID
 pi <- DimPlot(seu.obj, 
               reduction = "umap", 
@@ -103,17 +102,15 @@ pi <- DimPlot(seu.obj,
               shuffle = TRUE
 )
 pi <- formatUMAP(plot = pi)
-ggsave(paste("./output/", outName, "/", outName, "_myeloid_celltype_l3.png", sep = ""), width = 10, height = 7)
+ggsave(paste("../output/", outName, "/", outName, "_myeloid_celltype_l3.png", sep = ""), width = 10, height = 7)
 
 
-vilnPlots(seu.obj = seu.obj, groupBy = "celltype.l3", numOfFeats = 24, outName = "macOC_QCfiltered_final_2500", outDir = "./output/viln/myeloid/", outputGeneList = T, filterOutFeats = c("^MT-", "^RPL", "^ENSCAF", "^RPS"), assay = "RNA", 
+vilnPlots(seu.obj = seu.obj, groupBy = "celltype.l3", numOfFeats = 24, outName = "myeloid_QCfiltered_final_2500", outDir = "../output/viln/myeloid/", outputGeneList = T, filterOutFeats = c("^MT-", "^RPL", "^RPS"), assay = "RNA", 
                       min.pct = 0.25, only.pos = T
                      )
 
 ### Fig 7a: IHC marker screen
-
 features <- c("CD68","CD163","AIF1","MSR1")
-
 
 color <- "black"
 pi <- VlnPlot(
@@ -136,18 +133,18 @@ pi <- pi + theme(axis.title.y = element_blank(),
         strip.text.y.left = element_text(angle=0, size = 1),
         strip.placement = "outside")
 
-ggsave(paste("./output/", outName, "/", outName, "_viln1.png", sep = ""), height = 4)
+ggsave(paste("../output/", outName, "/", outName, "_viln1.png", sep = ""), height = 4)
 
 
 
 
 ### Fig 7b: Surface marker screen
-surface.markers <- read.csv("./surface_master.csv") %>% filter(Surfaceome.Label == "surface")
-cluster.markers <- read.csv("./output/viln/myeloid/macOC_QCfiltered_final_2500_gene_list.csv")
+surface.markers <- read.csv("./metaData/surface_master.csv") %>% filter(Surfaceome.Label == "surface")
+cluster.markers <- read.csv("../output/viln/myeloid/myeloid_QCfiltered_final_2500_gene_list.csv")
 
 ### Make supplemental data
-write.csv(cluster.markers %>% left_join(read.csv("./surface_master.csv")[c("UniProt.gene", "UniProt.description", "Surfaceome.Label", "Surfaceome.Label.Source")], by = c("gene" = "UniProt.gene")),
-          file = "./output/supplmental_data/myeloid_surf.csv", row.names = F)
+write.csv(cluster.markers %>% left_join(read.csv("./metaData/surface_master.csv")[c("UniProt.gene", "UniProt.description", "Surfaceome.Label", "Surfaceome.Label.Source")], by = c("gene" = "UniProt.gene")),
+          file = "../output/supplmental_data/myeloid_surf.csv", row.names = F)
 
 select.surface <- cluster.markers %>% filter(gene %in% surface.markers$UniProt.gene) %>% group_by(cluster) %>% top_n(wt = avg_log2FC,n = 5)
 
@@ -171,7 +168,7 @@ mat <- scale(as.matrix(clusAvg_expression))
 mat <- mat[,feats_forHeat]
 
 
-outfile <- paste("./output/", outName, "/", outName, "_heatMap.png", sep = "")
+outfile <- paste("../output/", outName, "/", outName, "_heatMap.png", sep = "")
 png(file = outfile, width=6000, height=3000, res=400)
 par(mfcol=c(1,1))                    
 ht <- Heatmap(mat,
@@ -179,7 +176,6 @@ ht <- Heatmap(mat,
         rect_gp = gpar(col = "white", lwd = 2),
         border_gp = gpar(col = "black"),
               col = c("#3B9AB2", "#78B7C5", "#EBCC2A", "#E1AF00", "#F21A00"),
-#                col = c("-4" = "#3B9AB2", "0" = "#EBCC2A", "4" = "#F21A00"),
         show_column_dend = F,
         cluster_rows = T,
         cluster_columns = T,
@@ -193,37 +189,33 @@ draw(ht, padding = unit(c(10, 2, 2, 15), "mm"), heatmap_legend_side = "top")
 dev.off()
 
 ### Fig supp: Surface marker screen
-
 p <- prettyFeats(seu.obj = seu.obj, nrow = 9, ncol =  6, features = feats_forHeat, 
                  color = "black", order = F, pt.size = 0.5, title.size = 16, noLegend = T)
-ggsave(paste("./output/", outName, "/", outName, "_surface_feats.png", sep = ""), width = 8.5, height = 11, scale = 2)
+ggsave(paste("../output/", outName, "/", outName, "_surface_feats.png", sep = ""), width = 8.5, height = 11, scale = 2)
 
 
+### Fig 7c - calc % immune and total cells
 
-### Fig: calc % immune and total cells
-seu.obj.all <- readRDS(file = "./output/s3/naive6_QCfilter_2000Feats_res0.8_dims45_dist0.35_neigh40_S3.rds")
-seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "majorID")
-seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "freqID")
-seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "id")
-seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "tumorO")
-seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./refColz.csv", groupBy = "orig.ident_2", metaAdd = "name")
-
+#load in the "all cells" object
+seu.obj.all <- readRDS(file = "../output/s3/naive6_QCfilter_2000Feats_res0.8_dims45_dist0.35_neigh40_S3.rds")
+seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "majorID")
+seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "freqID")
+seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "id")
+seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "tumorO")
+seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/refColz.csv", groupBy = "orig.ident_2", metaAdd = "name")
 seu.obj.all <- AddMetaData(seu.obj.all, metadata = seu.obj$celltype.l3, col.name = "clusterID_sub")
+colz.df <- read.csv("./metaData/refColz.csv")
 
-colz.df <- read.csv("./refColz.csv",)
-
+#extract data
 pct.df <- table(seu.obj.all$clusterID_sub, seu.obj.all$name) %>% melt()
 pct.df$Var.1 <- as.factor(pct.df$Var.1)
-
 parentFreq <- table(seu.obj.all$name) %>% melt()
 pct.df <- pct.df %>% left_join(parentFreq, by = c("Var.2" = "Var.1")) %>% left_join(colz.df, by = c("Var.2" = "name"))
 pct.df$pct <- pct.df$value.x/pct.df$value.y*100
 
-### Figue xx: pct of all cells
+#create plot as pct of all cells
 p1 <- ggplot(pct.df, aes(x = Var.1, y = pct)) +
 stat_summary(fun = mean, geom = "bar", fill = "grey", width = 0.7) +
-# stat_summary(fun.data = mean_se, 
-#              geom = "errorbar", width = 0) +
 geom_jitter(aes(colour = Var.2),width = 0.1) +
 scale_y_continuous(limits = c(0, 20), expand = expansion(mult = c(0, 0))) + 
 theme(
@@ -239,32 +231,29 @@ theme(
     axis.title.y = element_text(angle = 90, vjust = 2),
     axis.title.x = element_blank(),
     axis.text = element_text(face = "bold"),
-      legend.background = element_rect(colour = "transparent", fill = NA),
+    legend.background = element_rect(colour = "transparent", fill = NA),
     legend.box.background = element_rect(colour = "transparent", fill = NA),
     axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
     plot.background = element_blank()
-  ) + labs(y = "% all cells") + scale_colour_manual(labels = unique(pct.df$Var.2),
+) + labs(y = "% all cells") + scale_colour_manual(labels = unique(pct.df$Var.2),
                                                              values = unique(pct.df$colz),
                                                              name = "Cell source")
+ggsave(paste("../output/", outName, "/", outName, "_barchart.png", sep = ""), width = 6, height = 3)
 
-ggsave(paste("./output/", outName, "/", outName, "_barchart.png", sep = ""), width = 6, height = 3)
-
+#save results for later
 pct.df.all <- pct.df
 
-
+#extract data for pct of immune cells
 seu.obj.all$immune <- ifelse(seu.obj.all$majorID == "endo" | seu.obj.all$majorID == "tumor" | seu.obj.all$majorID== "cyclingTumor", "tumor", "immune")
-
 parentFreq <- table(seu.obj.all$name, seu.obj.all$immune) 
 parentFreq <- parentFreq[,-2] %>% as.data.frame() %>% rownames_to_column()
 colnames(parentFreq)[2] <- "immuneCnt"
-pct.df <- pct.df %>% left_join(parentFreq, by = c("Var.2" = "rowname")) #%>% left_join(colz.df, by = c("Var.2" = "name"))
+pct.df <- pct.df %>% left_join(parentFreq, by = c("Var.2" = "rowname"))
 pct.df$pct <- pct.df$value.x/pct.df$immuneCnt*100
 
-### Figue xx: pct of immune cells
+#create the plot
 p2 <- ggplot(pct.df, aes(x = Var.1, y = pct)) +
 stat_summary(fun = mean, geom = "bar", fill = "grey", width = 0.7) +
-# stat_summary(fun.data = mean_se, 
-#              geom = "errorbar", width = 0) +
 geom_jitter(aes(colour = Var.2),width = 0.1) +
 scale_y_continuous(limits = c(0, 20), expand = expansion(mult = c(0, 0))) +
 theme(
@@ -284,23 +273,24 @@ theme(
     plot.background = element_blank()
   ) + labs(y = "% immune cells") + scale_colour_manual(labels = unique(pct.df$Var.2),
                                                              values = unique(pct.df$colz)) + NoLegend()
+ggsave(paste("../output/", outName, "/", outName, "_barchart_immune.png", sep = ""), width = 6,height = 3)
 
-ggsave(paste("./output/", outName, "/", outName, "_barchart_immune.png", sep = ""), width = 6,height = 3)
-
+#save results for later
 pct.df.immune <- pct.df
 
+#save the plots as 1 figure
 p <- p2 + p1 + plot_layout(guides = 'collect') & theme(legend.key = element_rect(colour = "transparent", fill = "white"))
-ggsave(paste("./output/", outName, "/", outName, "_barchart_combined.png", sep = ""), width = 8,height = 3)
+ggsave(paste("../output/", outName, "/", outName, "_barchart_combined.png", sep = ""), width = 8,height = 3)
 
 
+### Supp data: source data used in % bar charts
 pct.df.immune$Parent <- "Immune cells"
 pct.df.immune$immuneCnt <- NULL
 pct.df.all$Parent <- "All cells"
-
 long.df <- rbind(pct.df.immune,pct.df.all)
 long.df <- long.df[ ,c(1,2,8,9)]
 colnames(long.df) <- c("Cell_type", "Dog_ID", "Percentage", "Parent")
-write.csv(long.df, paste0("./output/", outName, "/", outName, "myeloid_pct_long_table.csv"), row.names = F)
+write.csv(long.df, paste0("../output/", outName, "/", outName, "_myeloid_pct_long_table.csv"), row.names = F)
 
 
 ### Supp table: extract the summary data used in % bar charts
@@ -316,4 +306,8 @@ pct.df.all <- pct.df.all %>% group_by(Var.1) %>% summarize(Average = round(mean(
 
 pct.df.merge <- rbind(pct.df.immune,pct.df.all)
 colnames(pct.df.merge)[1] <- "Cell type"
-write.csv(pct.df.merge, paste0("./output/", outName, "/", outName, "myeloid_pct_table.csv"), row.names = F)
+write.csv(pct.df.merge, paste0("../output/", outName, "/", outName, "_myeloid_pct_table.csv"), row.names = F)
+
+##################################################################
+#######    END analysis of non-neutrophil myeloid cells   ########
+##################################################################
