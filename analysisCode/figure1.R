@@ -9,7 +9,7 @@ source("/pl/active/dow_lab/dylan/repos/K9-PBMC-scRNAseq/analysisCode/customFunct
 #################################################################
 
 #filter, integrate, and visulaize naive tumor data
-load10x(din = "./input/", dout = "./output/", outName = "final_notx6_tx6_12_5mt", testQC = F,
+load10x(din = "./input/", dout = "./output/", outName = "final_notx6_12_5mt", testQC = F,
        nFeature_RNA_high = 5500, nFeature_RNA_low = 200, percent.mt_high = 12.5, nCount_RNA_high = 75000, nCount_RNA_low = 100)
 
 sctIntegrate(din = "./output/s1_naive/", outName = "naive_n6", vars.to.regress = c("percent.mt"), nfeatures = 2000)
@@ -136,6 +136,10 @@ vilnPlots(seu.obj = seu.obj, groupBy = "clusterID", numOfFeats = 24, outName = "
                      )
 
 
+### Fig extra: run singleR classifier
+singleR(seu.obj = seu.obj, outName = "naive6_QCfilter_200", clusters = "clusterID", outDir = "./output/singleR/")
+
+
 ### Fig extra: create raw UMAP colorized by cluster
 pi <- DimPlot(seu.obj, 
               reduction = "umap", 
@@ -176,9 +180,9 @@ ggsave(paste("./output/", outName, "/", outName, "_UMAPbyMajorID.png", sep = "")
 majorColors.df$title <- "All cells"
 majorColors.df$labCol <- "black"
 majorColors.df$labz <- ""
-leg <- cusLeg(legend = majorColors.df, clusLabel = "labz",legLabel = "ClusterID", colorz = "colz",labCol = "labCol",colz = 1, rowz = NULL, groupLabel = "title", dotSize = 6, groupBy = "title",sortBy = "labz", compress_x = 0.9)
+leg <- cusLeg(legend = majorColors.df, clusLabel = "labz",legLabel = "ClusterID", colorz = "colz",labCol = "labCol",colz = 1, rowz = NULL, groupLabel = "title", dotSize = 8, groupBy = "title",sortBy = "labz", compress_x = 0.9)
 
-ggsave(paste("./output/", outName, "/", outName, "_leg_forUMAP_labels.png", sep = ""), width = 2, height = 7)
+ggsave(paste("./output/", outName, "/", outName, "_leg_forUMAP_labels.png", sep = ""), width = 2.75, height = 7)
 
 
 ### Fig 1b: create faceted UMAP by sample
@@ -203,6 +207,20 @@ pi <- DimPlot(seu.obj.sub,
 pi <- formatUMAP(plot = pi) + NoLegend() + theme(axis.title = element_blank())
 ggsave(paste("./output/", outName, "/", outName, "_UMAPbySample.png", sep = ""), width = 10.5, height = 7)
 
+seu.obj$orig.ident_2 <- as.factor(seu.obj$orig.ident_2)
+seu.obj$freqID <- factor(seu.obj$freqID, levels = rev(levels(cluster_freq.table$ClusterID)))
+
+stackEM <- stackedBar(seu.obj = seu.obj, downSampleBy = "orig.ident_2", groupBy = "orig.ident_2", clusters = "freqID")
+stackEM <- stackEM + scale_fill_manual(name="Cell source",
+                                       labels = levels(seu.obj$orig.ident_2),
+                                       values = levels(seu.obj$colz)
+                                      ) + theme(axis.title.y = element_blank(),
+                                                legend.text=element_text(size=16),
+                                                legend.spacing = unit(1.0, 'cm'),
+                                                legend.key.size = unit(0.8, 'cm')
+                                               )
+ggsave(paste("./output/", outName, "/", outName, "_stacked.png", sep = ""), width = 10.5, height = 7)
+
 
 ### Fig 1c: make pie chart
 #get cell names from seu metadata
@@ -221,9 +239,9 @@ cluster_freq.table$pos <- rev(cluster_freq.table$pos)
 
 #get color data incoperated
 cluster_freq.table <- cluster_freq.table %>% left_join(majorColors.df, by = "ClusterID")
+cluster_freq.table$ClusterID <- as.factor(cluster_freq.table$ClusterID )
 
-
-#reorder
+# #reorder
 cluster_freq.table <- cluster_freq.table[c(1,4,2,6,7,5,10,3,9,8),]
 cluster_freq.table$ClusterID <- factor(cluster_freq.table$ClusterID, levels = cluster_freq.table$ClusterID)
 
@@ -279,7 +297,7 @@ features <- names(modulez)
 
 #create the plot
 ecScores <- majorDot(seu.obj = seu.obj, groupBy = "freqID",
-                     features = features, yAxis = c("Tumor/Fibroblast","Cycling Tumor","Neutrophil","Macrophage","Dendritic cell","Osteoclast","T cell","B cell","Mast cell" ,"Endothelial")
+                     features = features, yAxis = c("Tumor/Fibroblast","Cycling Tumor","Neutrophil","TIM/TAM","Dendritic cell","Osteoclast","T cell","B cell","Mast cell" ,"Endothelial")
                     ) + theme(plot.margin = margin(3, 0, 3, 0, "pt"),
                                              axis.text.y=element_text(size=10),
                               axis.title = element_blank(),
@@ -323,6 +341,15 @@ colz <- c("black", "black",
 p <- prettyFeats(seu.obj = seu.obj, nrow = 2, ncol = 2, features = features, showAxis = F,smallAxis=F,
                  color = colz, order = F, pt.size = 0.0000001, title.size = 14, titles = titles, noLegend = T)
 ggsave(paste("./output/", outName, "/", outName, "_key_feats_poster.png", sep = ""), width = 6, height = 6)
+
+
+features <- c("AOC1","HNMT","MAOB","ALDH7A1"
+             )
+
+p <- prettyFeats(seu.obj = seu.obj, nrow = 2, ncol = 2, features = features, showAxis = F,smallAxis=F, order = F, pt.size = 0.0000001, title.size = 14, noLegend = T)
+ggsave(paste("./output/", outName, "/", outName, "_key_feats_poster.png", sep = ""), width = 6, height = 6)
+
+
 
 
 ### Run copyKat for CNV analysis ####
@@ -464,7 +491,203 @@ pi <- DimPlot(seu.obj.sub,
                  )
 pi <- formatUMAP(pi) + theme(legend.position = c(0.01, 0.95)) + theme(axis.title = element_blank(),
                                                  panel.border = element_blank())
-ggsave(paste("./output/", outName, "/", outName, "_uMAP_by_ploidy.png", sep = ""),width = 7,height=7)
+ggsave(paste("./output/", outName, "/", outName, "_uMAP_by_ploidy_noAxis.png", sep = ""),width = 7,height=7)
+
+
+axes <- ggplot() + labs(x = "UMAP1", y = "UMAP2") + 
+theme(axis.line = element_line(colour = "black", 
+                               arrow = arrow(angle = 30, length = unit(0.1, "inches"),
+                                             ends = "last", type = "closed"),
+                              ),
+      axis.title.y = element_text(colour = "black", size = 20),
+      axis.title.x = element_text(colour = "black", size = 20),
+      panel.border = element_blank(),
+      panel.background = element_rect(fill = "transparent",colour = NA),
+      plot.background = element_rect(fill = "transparent",colour = NA),
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank()
+     )
+
+p <- pi + inset_element(axes,left= 0,
+  bottom = 0,
+  right = 0.25,
+  top = 0.25,
+                       align_to = "full")
+ggsave(paste0("./output/", outName, "/", outName, "_uMAP_by_ploidy.png"), width = 7, height = 7)
+
+
+###### INFER CNV ANALYSIS AND PLOTTING IN RESPONSE TO REVIEWERS ######
+
+fileNames <- list.files(path = "./output_cnvIndv/", pattern="output_noNeuts_cleanData_run_count", all.files=FALSE,
+                    full.names=F)
+
+files <- paste0( "./output_cnvIndv/", fileNames, "/infercnv.observations.txt")
+
+df.list <- lapply(files, read.table, sep = " ")
+
+files <- paste0( "./output_cnvIndv/", fileNames, "/infercnv.references.txt")
+df.list2 <- c(df.list, lapply(files, read.table, sep = " "))
+
+# cnvStatus <- unlist(lapply(df.list, function(df){df %>% filter(rownames(.) == "MYC") %>% -1}))
+cnvStatus <- unlist(lapply(df.list2, function(df){df <- colSums(abs(1-df))}))
+# cnvStatus <- setNames(names(cnvStatus), cnvStatus)
+names(cnvStatus) <- gsub("[.]","-",names(cnvStatus))
+
+df <- as.data.frame(cnvStatus)
+df <- df %>% mutate(qunatile = case_when(cnvStatus < quantile(cnvStatus)[2] ~ "q1 (low CNV)",
+                                         cnvStatus > quantile(cnvStatus)[2] & cnvStatus < quantile(cnvStatus)[3] ~ "q2",
+                                         cnvStatus > quantile(cnvStatus)[3] & cnvStatus < quantile(cnvStatus)[4] ~ "q3",
+                                         cnvStatus > quantile(cnvStatus)[4] ~ "q4 (high CNV)"),
+                    samID = substr(rownames(df),20,20)
+                   ) %>% group_by(samID) %>% mutate(qunatile_grpd = case_when(cnvStatus < quantile(cnvStatus)[2] ~ "q1 (low CNV)",
+                                                                              cnvStatus > quantile(cnvStatus)[2] & cnvStatus < quantile(cnvStatus)[3] ~ "q2",
+                                                                              cnvStatus > quantile(cnvStatus)[3] & cnvStatus < quantile(cnvStatus)[4] ~ "q3",
+                                                                              cnvStatus > quantile(cnvStatus)[4] ~ "q4 (high CNV)"),
+                                                    cnvCall = ifelse(qunatile_grpd == "q4 (high CNV)", "aneuploid", "diploid")
+                   )
+
+
+
+seu.obj <- readRDS(file = "./output/s3/canine_naive_n6_annotated.rds")
+
+cnvStatus1 <- df$cnvStatus
+names(cnvStatus1) <- names(cnvStatus)
+seu.obj <- AddMetaData(seu.obj, metadata = cnvStatus1, col.name = "cnvStatus")
+
+cnvStatus2 <- df$qunatile
+names(cnvStatus2) <- names(cnvStatus)
+seu.obj <- AddMetaData(seu.obj, metadata = cnvStatus2, col.name = "quant")
+
+cnvStatus3 <- df$cnvCall
+names(cnvStatus3) <- names(cnvStatus)
+seu.obj <- AddMetaData(seu.obj, metadata = cnvStatus3, col.name = "cnvCall")
+
+cnvStatus4 <- df$qunatile_grpd
+names(cnvStatus4) <- names(cnvStatus)
+seu.obj <- AddMetaData(seu.obj, metadata = cnvStatus4, col.name = "qunatile_grpd")
+
+
+p <- prettyFeats(seu.obj = seu.obj, nrow = 1, ncol = 1, features = "cnvStatus", showAxis = F, smallAxis=F,
+                 color = "black", order = F, pt.size = 0.0000001, title.size = 14, titles = "CNV Status", noLegend = T)
+ggsave(paste("./", outName, "/", outName, "_inferCNV_status.png", sep = ""), width = 6, height = 6)
+
+cellz <- names(seu.obj$quant[!is.na(seu.obj$quant)])
+cellz <- names(seu.obj$qunatile_grpd[!is.na(seu.obj$qunatile_grpd)])
+seu.obj.sub <- subset(seu.obj, cells = cellz)
+pi <- DimPlot(seu.obj.sub, 
+              reduction = "umap", 
+              group.by = "qunatile_grpd",
+              pt.size = 0.1,
+              split.by = "name",
+              ncol = 3,
+              label = F,
+              label.box = F,
+              shuffle = TRUE
+) 
+p <- formatUMAP(pi)
+ggsave(paste("./output/", outName, "/", outName, "test_quant.png", sep = ""), width = 10.5, height = 7)
+
+levs <- seu.obj@meta.data[ ,c("celltype.l1", "cnvStatus")] %>% group_by(celltype.l1) %>% summarize(mea = mean(cnvStatus)) %>% arrange(desc(mea)) %>% pull(celltype.l1)
+seu.obj$celltype.l1 <- factor(seu.obj$celltype.l1, levels = levs)
+
+levs <- seu.obj@meta.data[ ,c("celltype.l2", "cnvStatus")] %>% group_by(celltype.l2) %>% summarize(mea = mean(cnvStatus)) %>% arrange(desc(mea)) %>% pull(celltype.l2)
+seu.obj$celltype.l2 <- factor(seu.obj$celltype.l2, levels = levs)
+
+p <- stackedBar(seu.obj = seu.obj, downSampleBy = "cellSource", groupBy = "qunatile_grpd", clusters = "celltype.l2") +
+ theme(legend.position = "top") + guides(fill = guide_legend(nrow = 1, byrow =T))
+ggsave(paste("./output/", outName, "/", outName, "_stackedBar.png", sep = ""), width = 8, height = 12)
+
+
+pi <- VlnPlot(object = seu.obj,
+    pt.size = 0,
+    same.y.lims = F,
+    group.by = "celltype.l1",
+    combine = F,
+#     cols = c("#FF755F", "#FFD6C6", "#AC0535", "#EB2C31", "tomato"),
+    stack = F,
+    fill.by = "ident",
+    flip = T,
+    features = "cnvStatus"
+        ) & NoLegend() & theme(axis.ticks = element_blank(),
+                               axis.text.y = element_blank(),
+                               axis.title.x = element_blank())
+
+#plot <- prettyViln(plot = pi, colorData = NULL, nrow = 2, ncol = 4)
+ggsave(paste("./", outName, "/", outName, "_selectViln.png", sep = ""), width = 7, height =5)
+
+
+
+seu.obj <- readRDS(file = "./output/s3/tumor_QCfiltered_2_3000_res0.5_dims40_dist0.5_neigh50_S3.rds")
+
+#rename cell types
+Idents(seu.obj) <- "clusterID_sub"
+seu.obj <- RenameIdents(seu.obj, c("0" = "Osteoblast_1", "1" = "Osteoblast_2", 
+                                   "2" = "Osteoblast_3", "3" = "Osteoblast_cycling_1",
+                                   "4" = "Hypoxic_osteoblast","5" = "Osteoblast_cycling_2",
+                                   "6" = "Fibroblast", "7" = "Osteoblast_cycling_3", 
+                                   "8" = "Osteoblast_cycling_4", "9" = "IFN-osteoblast")
+                       )
+
+
+seu.obj$majorID_sub <- Idents(seu.obj)
+
+Idents(seu.obj) <- "clusterID_sub"
+seu.obj <- RenameIdents(seu.obj, c("0" = "Osteoblast_1 (c0)", "1" = "Osteoblast_2 (c1)", 
+                                   "2" = "Osteoblast_3 (c2)", "3" = "Osteoblast_cycling_1 (c3)",
+                                   "4" = "Hypoxic_osteoblast (c4)","5" = "Osteoblast_cycling_2 (c5)",
+                                   "6" = "Fibroblast (c6)", "7" = "Osteoblast_cycling_3 (c7)", 
+                                   "8" = "Osteoblast_cycling_4 (c8)", "9" = "IFN-osteoblast (c9)")
+                       )
+
+
+seu.obj$majorID_subWclus <- Idents(seu.obj)
+
+seu.obj <- AddMetaData(seu.obj, metadata = cnvStatus1, col.name = "cnvStatus")
+seu.obj <- AddMetaData(seu.obj, metadata = cnvStatus2, col.name = "quant")
+seu.obj <- AddMetaData(seu.obj, metadata = cnvStatus3, col.name = "cnvCall")
+seu.obj <- AddMetaData(seu.obj, metadata = cnvStatus4, col.name = "qunatile_grpd")
+
+
+
+
+cellz <- names(seu.obj$quant[!is.na(seu.obj$quant)])
+cellz <- names(seu.obj$qunatile_grpd[!is.na(seu.obj$qunatile_grpd)])
+seu.obj.sub <- subset(seu.obj, cells = cellz)
+pi <- DimPlot(seu.obj.sub, 
+              reduction = "umap", 
+              group.by = "qunatile_grpd",
+              pt.size = 0.2,
+              split.by = "name",
+              ncol = 3,
+              label = F,
+              label.box = F,
+              shuffle = TRUE
+) 
+p <- formatUMAP(pi)
+ggsave(paste("./output/", outName, "/", outName, "test_tumor_quant.png", sep = ""), width = 10.5, height = 7)
+
+
+
+levs <- seu.obj@meta.data[ ,c("majorID_subWclus", "cnvStatus")] %>% group_by(majorID_subWclus) %>% summarize(mea = median(cnvStatus)) %>% arrange(desc(mea)) %>% pull(majorID_subWclus)
+seu.obj$majorID_subWclus <- factor(seu.obj$majorID_subWclus, levels = levs)
+
+pi <- VlnPlot(object = seu.obj,
+    pt.size = 0,
+    same.y.lims = F,
+    group.by = "majorID_subWclus",
+    combine = F,
+#      cols = unique(seu.obj$colz),
+    stack = F,
+    fill.by = "ident",
+#               split.by = "name",
+    flip = T,
+    features = "cnvStatus"
+        ) & NoLegend() & theme(axis.ticks = element_blank(),
+                               axis.text.y = element_blank(),
+                               axis.title.x = element_blank())
+
+#plot <- prettyViln(plot = pi, colorData = NULL, nrow = 2, ncol = 4)
+ggsave(paste("./output/", outName, "/", outName, "_selectViln_tumor.png", sep = ""), width = 8, height =5)
 
 
 #########################################################

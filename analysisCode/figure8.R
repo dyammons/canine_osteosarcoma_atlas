@@ -39,6 +39,29 @@ ct.l1 <- as.factor(seu.obj$celltype.l1)
 ct.l2 <- as.factor(seu.obj$celltype.l2)
 ct.l3 <- as.factor(seu.obj$celltype.l3)
 
+
+### Fig extra: generate violin plots showing expression of defining markers
+vilnPlots(seu.obj = seu.obj, groupBy = "celltype.l3", returnViln = F, outName = "tumor_for_CB", outDir = "./output/viln/", outputGeneList = T, filterOutFeats = c("^MT-", "^RPL", "^RPS"), assay = "RNA", 
+                      min.pct = 0.25, only.pos = T
+                     )
+
+
+### Export data to make cell browser
+ExportToCB_cus(seu.obj = seu.obj, dataset.name = "tumor", dir = "./output/cb_input/", 
+               markers = "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/viln/tumor_for_CB_gene_list.csv", 
+               reduction = "umap",  colsTOkeep = c("orig.ident", "nCount_RNA", "nFeature_RNA", "percent.mt", "Phase",
+                                                   "clusterID_sub", "name", 
+                                                   "celltype.l1", "celltype.l2", "celltype.l3"), skipEXPR = T,
+               test = F,
+                           feats = c("ALPL","COL13A1","COL3A1",
+                                     "FBLN1","VEGFA","ACTA2",
+                                     "DCN", "LUM", "C1R")
+                          
+                          )
+    
+
+
+
 #load t classifications
 seu.obj <- readRDS(file = "./output/s3/tcell_2500Feats_qcFiltered_res0.6_dims40_dist0.3_neigh50_S3.rds")
 
@@ -73,6 +96,29 @@ ct.l1 <- c(ct.l1,seu.obj$celltype.l1)
 ct.l2 <- c(ct.l2,seu.obj$celltype.l2)
 ct.l3 <- c(ct.l3,seu.obj$celltype.l3)
 
+
+### Fig extra: generate violin plots showing expression of defining markers
+vilnPlots(seu.obj = seu.obj, groupBy = "celltype.l3", returnViln = F, outName = "tcell_for_CB", outDir = "./output/viln/", outputGeneList = T, filterOutFeats = c("^MT-", "^RPL", "^RPS"), assay = "RNA", 
+                      min.pct = 0.25, only.pos = T
+                     )
+
+
+
+### Export data to make cell browser
+ExportToCB_cus(seu.obj = seu.obj, dataset.name = "tcell", dir = "./output/cb_input/", 
+               markers = "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/viln/tcell_for_CB_gene_list.csv", 
+               reduction = "umap",  colsTOkeep = c("orig.ident", "nCount_RNA", "nFeature_RNA", "percent.mt", "Phase",
+                                                   "clusterID_sub", "name", 
+                                                   "celltype.l1", "celltype.l2", "celltype.l3"), 
+               skipEXPR = F, test = F,
+               
+               feats = c("CD3E","GZMA", "CD40LG", "FOXP3","CXCL13","IL7R",
+                         "CD4","GZMB", "DLA-DRA", "CTLA4","IL21","SELL",
+                         "CD8A", "GZMK", "CXCR4", "TNFRSF4","CD70","TOP2A")
+                          
+                          )
+
+
 #load myeloid class
 seu.obj <- readRDS(file = "./output/s3/dc_QCfiltered_2000_res0.3_dims35_dist0.3_neigh50_S3.rds")
 
@@ -94,6 +140,30 @@ seu.obj$celltype.l1 <- Idents(seu.obj)
 ct.l1 <- c(ct.l1,seu.obj$celltype.l1)
 ct.l2 <- c(ct.l2,seu.obj$celltype.l2)
 ct.l3 <- c(ct.l3,seu.obj$celltype.l3)
+
+
+### Fig extra: generate violin plots showing expression of defining markers
+vilnPlots(seu.obj = seu.obj, groupBy = "celltype.l3", returnViln = F, outName = "dc_for_CB", outDir = "./output/viln/", outputGeneList = T, filterOutFeats = c("^MT-", "^RPL", "^RPS"), assay = "RNA", 
+                      min.pct = 0.25, only.pos = T
+                     )
+
+
+ExportToCB_cus(seu.obj = seu.obj, dataset.name = "dc", dir = "./output/cb_input/", 
+               markers = "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/viln/dc_for_CB_gene_list.csv", 
+               reduction = "umap",  colsTOkeep = c("orig.ident", "nCount_RNA", "nFeature_RNA", "percent.mt", "Phase",
+                                                   "clusterID_sub", "name", 
+                                                   "celltype.l1", "celltype.l2", "celltype.l3"), 
+               skipEXPR = F, test = F,
+               
+               feats = c("IL3RA", "PGLYRP2", "DDR2", 
+                         "IGF1","RARRES2", "IGHM","IGKC",
+                         "CADM1","DNASE1L3", "CLEC1B", 
+                         "IDO1","IL4I1", "CCR7",
+                         "CD1C","PID1","CD300H")
+                          
+                          )
+
+
 
 #load OC-mac class
 seu.obj <- readRDS(file = "./output/s3/macOC_QCfiltered_2500_res0.6_dims40_dist0.25_neigh40_S3.rds")
@@ -132,6 +202,36 @@ seu.obj$celltype.l1 <- Idents(seu.obj)
 ct.l1 <- c(ct.l1,seu.obj$celltype.l1)
 ct.l2 <- c(ct.l2,seu.obj$celltype.l2)
 ct.l3 <- c(ct.l3,seu.obj$celltype.l3)
+
+
+
+### Fig extra: generate violin plots showing expression of defining markers
+vilnPlots(seu.obj = seu.obj, groupBy = "celltype.l3", returnViln = F, outName = "macOC_for_CB", outDir = "./output/viln/", outputGeneList = T, filterOutFeats = c("^MT-", "^RPL", "^RPS"), assay = "RNA", 
+                      min.pct = 0.25, only.pos = T
+                     )
+
+
+ExportToCB_cus(seu.obj = seu.obj, dataset.name = "macOC", dir = "./output/cb_input/", 
+               markers = "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/viln/macOC_for_CB_gene_list.csv", 
+               reduction = "umap",  colsTOkeep = c("orig.ident", "nCount_RNA", "nFeature_RNA", "percent.mt", "Phase",
+                                                   "clusterID_sub", "name", 
+                                                   "celltype.l1", "celltype.l2", "celltype.l3"), 
+               skipEXPR = F, test = F,
+               
+               feats = c("CXCL10", "CD40", "CCL19","CD5L","DLA-DRA",
+                   "GCAT", "IFIT", "IL7R","KCNH7","NEURL3",
+                   "GPNMB", "PTGR1", "CD36","SCIN","SPP2","SPP1","TREM2",
+                   "C1QC", "IGF1", "NIBAN3","SERPING1","CLDN1",
+                   "SELL", "ITGB7", "PYGL","NOD2","OSM",
+                   "VEGFA", "PRDX6", "TIMP1", "PTGES","VEGFC",
+                   "RSAD2", "OAS3", "IFIT3","ISG15","TNFSF10",
+                   "LTF", "PADI3", "PTGS2","CD4","THBS1",
+                        "STMN1","ATP6V0D2", "TNIP3", 
+              "TOP2A","CTSK", "CD320",
+              "MYBL2","HYAL1","SRM")
+                          
+                          )
+
 
 #load in all data and extract last few classes
 seu.obj <- readRDS(file = "./output/s3/naive6_QCfilter_2000Feats_res0.8_dims45_dist0.35_neigh40_S3.rds")
@@ -213,11 +313,33 @@ seu.obj$clusterID_final <- Idents(seu.obj)
 seu.obj <- readRDS(file = "./output/s3/canine_naive_n6_annotated.rds")
 outName <- "allCells"
 
-#generate violin plots for cell type level 2
-vilnPlots(seu.obj = seu.obj, inFile = NULL, groupBy = "celltype.l2", numOfFeats = 24, outName = "dog",
-                      outDir = "./output/viln/", outputGeneList = T, filterOutFeats = c("^MT-", "^RPL", "^ENSCAF", "^RPS"), assay = "RNA", 
+# #generate violin plots for cell type level 3
+vilnPlots(seu.obj = seu.obj, inFile = NULL, groupBy = "celltype.l3", numOfFeats = 24, outName = "ct.l3",
+                      outDir = "./output/viln/allCells/", outputGeneList = T, filterOutFeats = c("^MT-", "^RPL", "^RPS"), assay = "RNA", 
                       min.pct = 0.25, only.pos = T, resume = F, resumeFile = NULL
                      )
+
+cluster.markers <- read.csv("./output/viln/allCells/ct.l3_gene_list.csv")
+write.csv(cluster.markers %>% left_join(read.csv("./surface_master.csv")[c("UniProt.gene", "UniProt.description", "Surfaceome.Label", "Surfaceome.Label.Source")], by = c("gene" = "UniProt.gene")),
+          file = "./output/supplmental_data/all_surf.csv", row.names = F)
+
+
+### Fig extra: generate violin plots showing expression of defining markers
+
+ExportToCB_cus(seu.obj = seu.obj, dataset.name = "allCells", dir = "./output/cb_input/", 
+               markers = "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/viln/allCells/ct.l3_gene_list.csv", 
+               reduction = "umap",  colsTOkeep = c("orig.ident", "nCount_RNA", "nFeature_RNA", "percent.mt", "Phase",
+                                                   "clusterID", "name", 
+                                                   "celltype.l1", "celltype.l2", "celltype.l3"), 
+               skipEXPR = F, test = F,
+               
+               feats = c("PTPRC", "CD3E", "CD4",
+                         "GZMB", "DLA-DRA", "FLT3", 
+                         "CD68", "CTSK", "S100A12",
+                         "ALPL", "COL1A1", "FBLN1", 
+                         "TOP2A","MS4A1", "ESAM")
+                          
+                          )
 
 #load in color data for pretry plotting
 colz <- c(c("#6D0026","#EB2C31","#EB2C31","#FFAA93", "#F17D00", "#F6B31E", "#DABC9C", "#F49900", "#FFD6C6", "#AC0535"),
@@ -268,6 +390,14 @@ seu.obj$immune <- ifelse(seu.obj$majorID == "endo" | seu.obj$majorID == "tumor" 
 seu.obj$celltype.l3 <- droplevels(seu.obj$celltype.l3)
 seu.obj <- NormalizeData(seu.obj)
 cnts <- seu.obj@assays$RNA@data
+cnts <- orthogene::convert_orthologs(gene_df = cnts,
+                                        gene_input = "rownames", 
+                                        gene_output = "rownames", 
+                                        input_species = "dog",
+                                        output_species = "human",
+                                        non121_strategy = "drop_both_species") 
+rownames(cnts) <- unname(rownames(cnts))
+
 meta <- seu.obj@meta.data
 cell.use <- rownames(meta)
 
@@ -278,7 +408,6 @@ cellchat@DB <- CellChatDB.human
 cellchat <- subsetData(cellchat)
 
 #run cellchat as described in vignette
-# future::plan("multiprocess", workers = 4) # do parallel
 cellchat <- identifyOverExpressedGenes(cellchat)
 cellchat <- identifyOverExpressedInteractions(cellchat)
 
@@ -290,11 +419,12 @@ cellchat <- aggregateNet(cellchat)
 
 #save the object - if running immune unnote the top saveRDS call
 # saveRDS(cellchat, "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/allCells/allCells_cellChatobj_IMMUNE_BYfinal_230724.rds")
-saveRDS(cellchat,"/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/allCells/allCells_cellChatobjBYfinalID_ctl3_230724.rds")
-
+# saveRDS(cellchat,"/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/allCells/allCells_cellChatobjBYfinalID_ctl3_230724.rds")
+saveRDS(cellchat,"/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/allCells/allCells_cellChatobjBYfinalID_ctl3_CONVERTED_231228.rds")
+saveRDS(cellchat, "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/allCells/allCells_cellChatobj_IMMUNE_BYfinal_CONVERTED_231228.rds")
 
 #load in saved object if not already loaded in
-# cellchat <- readRDS("/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/allCells/allCells_cellChatobjBYfinalID.rds")
+# cellchat <- readRDS("/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/allCells/allCells_cellChatobjBYfinalID_ctl3_CONVERTED_231228.rds")
 # cellchat <- readRDS("/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/allCells/allCells_cellChatobjBYfinalID_ctl3_230724.rds")
 
 #compute cellchat netP value
@@ -360,10 +490,20 @@ pathways <- cellchat@netP$pathways
 length(pathways)
 
 #set pathway type groupings
+# old
+# immune_path <- c("SPP1","CD45","CCL","SELPLG","CD86","SELL","IL1","CD80","PARs","IL16","FASLG","FLT3","PD-L1",
+#                  "CD96","CD23","OSM","CD22","CADM","MPZ","BAFF","THY1","ADGRE5","SEMA4", "CD40", "CSF")
+# immuneRelated_path <- c("GALECTIN","FN1","THBS","LAMININ","SEMA7","CLEC","BAG","RESISTIN","VISFATIN","NECTIN","ICAM","NRG","NOTCH", "HSPG")
+# nonImmune_path <- c("COLLAGEN","APP","PTN","VEGF","BSP","PECAM1","IGF","FGF","CDH","TENASCIN","APRIL","JAM","CDH1","ESAM","VWF","PERIOSTIN","CDH5","PDGF","NCAM","CALCR","ANGPT", "GAS")
+
+
+#set pathway type groupings
 immune_path <- c("SPP1","CD45","CCL","SELPLG","CD86","SELL","IL1","CD80","PARs","IL16","FASLG","FLT3","PD-L1",
-                 "CD96","CD23","OSM","CD22","CADM","MPZ","BAFF","THY1","ADGRE5","SEMA4", "CD40", "CSF")
-immuneRelated_path <- c("GALECTIN","FN1","THBS","LAMININ","SEMA7","CLEC","BAG","RESISTIN","VISFATIN","NECTIN","ICAM","NRG","NOTCH", "HSPG")
-nonImmune_path <- c("COLLAGEN","APP","PTN","VEGF","BSP","PECAM1","IGF","FGF","CDH","TENASCIN","APRIL","JAM","CDH1","ESAM","VWF","PERIOSTIN","CDH5","PDGF","NCAM","CALCR","ANGPT", "GAS")
+                 "CD96","CD23","OSM","CADM","MPZ","BAFF","THY1","ADGRE5","SEMA4", "CD40", "CSF", "MHC-II")
+immuneRelated_path <- c("FN1","THBS","LAMININ","SEMA7","CLEC","BAG","RESISTIN","VISFATIN","NECTIN","ICAM","NRG","NOTCH", "HSPG")
+nonImmune_path <- c("COLLAGEN","APP","PTN","VEGF","BSP","PECAM1","IGF","CDH","TENASCIN","APRIL","JAM","CDH1","ESAM","VWF","PERIOSTIN","CDH5","PDGF","NCAM","CALCR","ANGPT", "GAS")
+
+
 length(unique(c(immune_path,immuneRelated_path,nonImmune_path)))
 
 #write the pathway classifications for supplemental table
@@ -453,7 +593,7 @@ ggsave(pi, file = paste0("./output/", outName, "/", outName, "_interactionScater
 
 
 #load in immune only cellchat
-cellchat <- readRDS("/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/allCells/allCells_cellChatobj_IMMUNE_BYfinal_230724.rds")
+cellchat <- readRDS("/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/allCells/allCells_cellChatobj_IMMUNE_BYfinal_CONVERTED_231228.rds")
 cellchat <- netAnalysis_computeCentrality(cellchat, slot.name = "netP") # the slot 'netP' means the inferred intercellular communication network of signaling pathways
 
 #set group names for prety plotting
@@ -597,3 +737,7 @@ plot <- ggplot(data = df, mapping = aes(x = source.target, y = interaction_name_
 #check path is correct
 outfile <- paste("./output/", outName, "/", outName, "_netVisual_bubble_mregDC-Tcell.png", sep = "")
 ggsave(file = outfile, plot, height = 4.5)
+
+##########################################
+#######   End CellChat analysis   ########
+##########################################
