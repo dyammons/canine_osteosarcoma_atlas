@@ -3,6 +3,16 @@
 The processed data are available on Zenodo and can be downloaded by visiting the [project repository web page](https://zenodo.org/records/10666969).
 Once on the web page scroll down and select download for the file(s) of interest.
 
+Alternatively, use `wget` in a terminal to retrieve the data:
+```sh
+wget https://zenodo.org/record/10891255/files/canine_naive_n6_annotated.rds  # Full dataset
+wget https://zenodo.org/record/10891255/files/tumor_subset_annotated.rds     # Tumor cell dataset
+wget https://zenodo.org/record/10891255/files/tcell_subset_annotated.rds     # T cell dataset
+wget https://zenodo.org/record/10891255/files/dc_subset_annotated.rds        # Dendritic cell dataset
+wget https://zenodo.org/record/10891255/files/macOC_subset_annotated.rds     # Macrophage and osteoclast dataset
+wget https://zenodo.org/record/10891255/files/myeloid_subset_annotated.rds   # Macrophage, osteoclast, and dendritic cell dataset
+```
+
 Prefer to use tools in python or R? Check out `zenodo_get` or `inborutils` to download within the respective software. 
 
 <details><summary>Example usage of zenodo_get </summary>
@@ -17,7 +27,7 @@ Visit the [`zendo_get`](https://github.com/dvolgyes/zenodo_get) page for most up
 pip3 install zenodo_get
 
 #download the Zenodo repository
-zenodo_get 10.5281/zenodo.10666969
+zenodo_get 10.5281/zenodo.10891255
 ```
 
 </p>
