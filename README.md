@@ -1,5 +1,7 @@
 # Canine osteosarcoma scRNA-seq atlas
 
+[![DOI](https://zenodo.org/badge/630249079.svg)](https://zenodo.org/doi/10.5281/zenodo.10666968)
+
 This GitHub repository contains all the analysis code used in, "Single-cell RNA sequencing reveals the cellular and molecular composition of treatment-naïve primary canine osteosarcoma tumors"
 
 The manuscript has been accepted to _Communications Biology_ and will be published shortly.
