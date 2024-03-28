@@ -202,13 +202,18 @@ ggsave(paste("../output/", outName, "/", outName, "_surface_feats.png", sep = ""
 ### Fig 7c - calc % immune and total cells
 
 #load in the "all cells" object
-seu.obj.all <- readRDS(file = "../output/s3/naive6_QCfilter_2000Feats_res0.8_dims45_dist0.35_neigh40_S3.rds")
-seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "majorID")
-seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "freqID")
-seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "id")
-seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "tumorO")
-seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/refColz.csv", groupBy = "orig.ident_2", metaAdd = "name")
+# seu.obj.all <- readRDS(file = "../output/s3/naive6_QCfilter_2000Feats_res0.8_dims45_dist0.35_neigh40_S3.rds")
+# seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "majorID")
+# seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "freqID")
+# seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "id")
+# seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "tumorO")
+# seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/refColz.csv", groupBy = "orig.ident_2", metaAdd = "name")
+# seu.obj.all <- AddMetaData(seu.obj.all, metadata = seu.obj$celltype.l3, col.name = "clusterID_sub")
+
+#load in final annotated dataset for most accurate analysis
+seu.obj.all <- readRDS(file = "../output/s3/canine_naive_n6_annotated.rds")
 seu.obj.all <- AddMetaData(seu.obj.all, metadata = seu.obj$celltype.l3, col.name = "clusterID_sub")
+
 colz.df <- read.csv("./metaData/refColz.csv")
 
 #extract data
@@ -311,7 +316,7 @@ pct.df.all <- pct.df.all %>% group_by(Var.1) %>% summarize(Average = round(mean(
 
 pct.df.merge <- rbind(pct.df.immune,pct.df.all)
 colnames(pct.df.merge)[1] <- "Cell type"
-write.csv(pct.df.merge, paste0("../output/", outName, "/", outName, "_myeloid_pct_table.csv"), row.names = F)
+write.csv(pct.df.merge, paste0("../output/supplmental_data/", "myeloid_pct_table.csv"), row.names = F)
 
 ##################################################################
 #######    END analysis of non-neutrophil myeloid cells   ########

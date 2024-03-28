@@ -371,13 +371,17 @@ ggsave(paste("../output/", outName, "/", outName, "_c0vc1_volcPlot.png", sep = "
 
 
 ### Fig 3f - calc % immune and total cells
-#load in annotated object with all cells <<< need to rerun with final annotated dataset that has lowQ removed
-seu.obj.all <- readRDS(file = "../output/s3/naive6_QCfilter_2000Feats_res0.8_dims45_dist0.35_neigh40_S3.rds")
-seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "majorID")
-seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "freqID")
-seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "id")
-seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "tumorO")
-seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/refColz.csv", groupBy = "orig.ident_2", metaAdd = "name")
+#load in annotated object with all cells
+# seu.obj.all <- readRDS(file = "../output/s3/naive6_QCfilter_2000Feats_res0.8_dims45_dist0.35_neigh40_S3.rds")
+# seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "majorID")
+# seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "freqID")
+# seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "id")
+# seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/tumor_naive_6_v2.csv", groupBy = "clusterID", metaAdd = "tumorO")
+# seu.obj.all <- loadMeta(seu.obj = seu.obj.all, metaFile = "./metaData/refColz.csv", groupBy = "orig.ident_2", metaAdd = "name")
+# seu.obj.all <- AddMetaData(seu.obj.all, metadata = seu.obj$majorID, col.name = "clusterID_sub")
+
+#load in final annotated dataset for most accurate analysis
+seu.obj.all <- readRDS(file = "../output/s3/canine_naive_n6_annotated.rds")
 seu.obj.all <- AddMetaData(seu.obj.all, metadata = seu.obj$majorID, col.name = "clusterID_sub")
 
 #load in sample colors
@@ -472,16 +476,16 @@ ggsave(paste("../output/", outName, "/", outName, "_barchart_combined.png", sep 
 
 
 ### Supp table - extract the summary data used in % bar charts
-pct.df.immune <- pct.df.immune %>% group_by(Var.2) %>% summarize(Average = round(mean(pct),2),
+pct.df.immune <- pct.df.immune %>% group_by(Var.1) %>% summarize(Average = round(mean(pct),2),
                                                 Range = paste0(round(min(pct),2),"-",round(max(pct),2)),
                                                 Parent = "Immune cells")
 
-pct.df.all <- pct.df.all %>% group_by(Var.2) %>% summarize(Average = round(mean(pct),2),
+pct.df.all <- pct.df.all %>% group_by(Var.1) %>% summarize(Average = round(mean(pct),2),
                                                 Range = paste0(round(min(pct),2),"-",round(max(pct),2)),
                                                 Parent = "All cells")
 
 pct.df.merge <- rbind(pct.df.immune,pct.df.all)
-colnames(pct.df.merge)[1] <- "Dog ID"
+colnames(pct.df.merge)[1] <- "Cell type"
 write.csv(pct.df.merge, "../output/supplmental_data/tcell_pct_table.csv", row.names = F)
 
 
