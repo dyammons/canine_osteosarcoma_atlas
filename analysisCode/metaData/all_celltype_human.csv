@@ -1,0 +1,27 @@
+clusterID,celltype.l1,celltype.l2
+0,Macrophage,NR4A3_TAM
+1,Osteoblast,Osteoblast
+2,Macrophage,TXNIP_TAM
+3,Osteoblast,Osteoblast
+4,T cell,CD8 T cell
+5,Macrophage,FABP5_TAM
+6,T cell,CD4 T cell
+7,Osteoblast,Osteoblast
+8,Macrophage,CD14_TIM
+9,Macrophage,NR4A3_TAM
+10,Cycling osteoblast,Cycling osteoblast
+11,Fibroblast,Fibroblast
+12,Osteoblast,Osteoblast
+13,B cell,Plasma cell
+14,Osteoblast,Osteoblast
+15,Osteoclast,Mature_OC
+16,Macrophage,IFN-TAM
+17,NK cell,NK
+18,Osteoclast,preOC
+19,Cycling osteoblast,Osteoblast_cycling
+20,DC,cDC2
+21,Endothelial,Endothelial_cell
+22,B cell,B cell
+23,T cell,T_IFN
+24,Mast,Mast cell
+25,DC,pDC
