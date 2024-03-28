@@ -6,9 +6,10 @@ Instructions to download the fastq files can be found in [:file\_folder: input](
 The alignment code is currently not provided (used a default Cell Ranger workflow), but can be shared if desired.
 
 ### To complete a reproducible run from Cell Ranger output count matrices:
-
+Clone this repository (`git clone https://github.com/dyammons/canine_osteosarcoma_atlas.git`) then follow the instructions in [:file\_folder: input](/input/README.md#instructions-to-obtain-count-matrices-from-ncbi-geo) to obtain count matrices from NCBI GEO to get the count matricies into the `input` directory. Start with `figure1.R` then move through the scripts in increasing figure number.
 
 ### To reproduce/explore data using processed data:
+Clone this repository (`git clone https://github.com/dyammons/canine_osteosarcoma_atlas.git`) then follow the instructions in [:file\_folder: input](/input/README.md#instructions-to-obtain-processed-seurat-objects) to obtain processed Seurat objects from Zenodo to get the `.rds` files in the `/output/s3/` directory. These objects can be loaded into scripts for figures 2-8.
 
 ### Environment to reproduce:
 This work was completed on the UC boulder Alpine supercomputer on a Linux operating system. All code was run in a conda environment and I am happy to share the .yml file upon request.
