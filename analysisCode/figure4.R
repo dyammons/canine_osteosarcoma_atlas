@@ -42,7 +42,7 @@ seu.obj <- dataVisUMAP(seu.obj = seu.obj, outDir = "../output/s3/", outName = "d
 #######   Begin DC analysis   ########
 ######################################
 
-#load in processed object
+#load in processed object -- see line 70 if loading in data from Zenodo
 seu.obj <- readRDS(file = "../output/s3/dc_QCfiltered_2000_res0.3_dims35_dist0.3_neigh50_S3.rds")
 
 #stash new idents
@@ -62,6 +62,12 @@ seu.obj$majorID_sub2 <- Idents(seu.obj)
 
 #set output path
 outName <- "dc_naive6"
+
+#export the annotated dataset for Zenodo - no need to run
+# saveRDS(seu.obj, "../output/s3/dc_subset_annotated.rds")
+
+### If loading from Zenodo repository, can start here
+# seu.obj <- readRDS("../output/s3/dc_subset_annotated.rds")
 
 #used later
 ct.l3 <- seu.obj$majorID_sub

@@ -91,6 +91,11 @@ sorted_labels <- c("CD4-_TIM", "CD4+_TIM", "ANGIO_TAM", "TAM_ACT", "TAM_INT", "L
 
 seu.obj$celltype.l3 <- factor(seu.obj$celltype.l3, levels = sorted_labels)
 
+# export the annotated dataset for Zenodo - no need to run
+# saveRDS(seu.obj, "../output/s3/myeloid_subset_annotated.rds")
+
+### If loading from Zenodo repository, can start here
+# seu.obj <- readRDS("../output/s3/myeloid_subset_annotated.rds")
 
 ### Fig extra: Create raw UMAP with orig clusID
 pi <- DimPlot(seu.obj, 

@@ -56,7 +56,7 @@ seu.obj <- dataVisUMAP(seu.obj = seu.obj.sub, outDir = "../output/s3/", outName 
 #######   Begin MAC analysis   ########
 #######################################
 
-### Resume the journey
+### Resume the journey -- see line 93 if loading in data from Zenodo
 seu.obj <- readRDS(file = "../output/s3/macOC_QCfiltered_2500_res0.6_dims40_dist0.25_neigh40_S3.rds")
 sorted_labels <- paste(sort(as.integer(levels(seu.obj$clusterID_sub))))
 seu.obj$clusterID_sub <- factor(seu.obj$clusterID_sub, levels = sorted_labels)
@@ -75,20 +75,22 @@ vilnPlots(seu.obj = seu.obj, groupBy = "clusterID_sub", numOfFeats = 24, outName
 Idents(seu.obj) <- "clusterID_sub"
 seu.obj <- RenameIdents(seu.obj, c("0" = "TAM_ACT", "1" = "TAM_INT", 
                                    "2" = "LA-TAM_SPP2_hi", "3" = "LA-TAM_C1QC_hi",
-                                   "4" = "CD4-_TIM","5" = "Cycling_OC",
+                                   "4" = "CD4-_TIM","5" = "Cycling_OC_1",
                                    "6" = "Mature_OC", "7" = "ANGIO_TAM", 
-                                   "8" = "Cycling_OC", "9" = "CD320_OC", 
+                                   "8" = "Cycling_OC_2", "9" = "CD320_OC", 
                                    "10" = "IFN-TAM", "11" = "CD4+_TIM")
                        )
 
-
 seu.obj$majorID <- Idents(seu.obj)
-
-seu.obj$majorID <- factor(seu.obj$majorID, levels = c("CD4-_TIM (c4)","CD4+_TIM (c11)","Angio-TAM (c2)","LA-TAM_TREM2hi (c0)","LA-TAM_C1QChi (c5)",
-                                                 "IFN-TAM (c8)","Cycling-OC (c4)","Reactive-OC (c7)","Mature-OC (c6)","ECM-OC (c3)"))
 
 #used later
 ct.l3 <- c(ct.l3,seu.obj$majorID)
+
+# export the annotated dataset for Zenodo - no need to run
+# saveRDS(seu.obj, "../output/s3/macOC_subset_annotated.rds")
+
+### If loading from Zenodo repository, can start here
+# seu.obj <- readRDS("../output/s3/macOC_subset_annotated.rds")
 
 
 ### Fig extra: QC check
@@ -228,7 +230,7 @@ p_volc <- btwnClusDEG(seu.obj = seu.obj, groupBy = "clusterID_sub", idents.1 = "
                         minCells = 25, outDir = paste0("../output/", outName, "/"), title = "c3_vs_c2", idents.1_NAME = "LA_TAM_C1QC_hi", idents.2_NAME = "LA_TAM_SPP1_hi", returnVolc = T, doLinDEG = F, paired = T, addLabs = NULL,lowFilter = T, dwnSam = F
                     )
 
-p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c3", leftLab = "Up in c2") + labs(x = "log2(FC) c3 vs c2")
+p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c3", leftLab = "Up in c2") + labs(x = "log2(FC) c3 vs c2") + NoLegend()
 
 ggsave(paste("../output/", outName, "/", outName, "_c3vc2_volcPlot.png", sep = ""), width = 7, height = 7)
 
@@ -298,13 +300,13 @@ p_volc <- btwnClusDEG(seu.obj = seu.obj, groupBy = "clusterID_sub", idents.1 = "
                         minCells = 5, outDir = paste0("../output/", outName, "/"), title = "c11_vs_c3", idents.1_NAME = "CD4pos_TIM", idents.2_NAME = "LA_TAM_C1QC_hi", returnVolc = T, doLinDEG = F, paired = T, addLabs = NULL,lowFilter = T, dwnSam = F
                     )
 
-p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c11", leftLab = "Up in c3") + labs(x = "log2(FC) c11 vs c3")
+p  <- prettyVolc(plot = p_volc[[1]], rightLab = "Up in c11", leftLab = "Up in c3") + labs(x = "log2(FC) c11 vs c3") + NoLegend()
 
 ggsave(paste("../output/", outName, "/", outName, "_CD4pos_TIMvLA_TAM_C1QC_hi_volcPlot.png", sep = ""), width = 7, height = 7)
 
 
 ### Fig 6g: make heatmap M1 vs M2
-geneLists <- read.csv("../output/mac-oc_naive6/CD4pos_TIM_vs_LA_TAM_C1QC_hi_all_genes.csv")
+geneLists <- read.csv("../output/mac_naive6/CD4pos_TIM_vs_LA_TAM_C1QC_hi_all_genes.csv")
 
 #extract top 20 feats for each direction of the conntrast
 geneListUp <- geneLists %>% arrange(padj) %>% filter(log2FoldChange > 0) %>% .$gene
@@ -362,7 +364,7 @@ dev.off()
 ### Fig 5h: make heatmap GSEA HALLMARK terms using singleseqgset
 seu.obj$clusterID_sub <- droplevels(seu.obj$clusterID_sub)
 
-can_gene_sets <- msigdbr(species = "dog", category = "H")
+can_gene_sets <- msigdbr(species = "dog", category = "C2", subcategory = "CP:REACTOME")
 
 can_gene_lists <- unique(can_gene_sets$gs_name)
 can.sets <- vector("list",length=length(can_gene_lists))
@@ -388,7 +390,7 @@ res.pvals <- res.pvals[rowMins(res.pvals) < 0.05,]
 
 
 mat <- scale(as.matrix(res.stats))
-rownames(mat) <- gsub("HALLMARK_", "", rownames(mat))
+rownames(mat) <- gsub("REACTOME_", "", rownames(mat))
 
 top10Terms <- do.call(c,lapply(1:ncol(mat),function(x){names(tail(sort(mat[,x]),10))}))
 
@@ -398,11 +400,11 @@ library("circlize")
 library("RColorBrewer")
 
 #plot the results
-outfile <- paste("../output/", outName, "/", outName, "_hallmarks_heatMap.png", sep = "")
+outfile <- paste("../output/", outName, "/", outName, "_reactome_heatMap.png", sep = "")
 png(file = outfile, width=6000, height=6000, res=400)
 par(mfcol=c(1,1))                    
 ht <- Heatmap(mat,
-        name = "HALLMARK pathway activity",
+        name = "Reactome pathway activity",
         rect_gp = gpar(col = "white", lwd = 2),
         border_gp = gpar(col = "black"),
         show_column_dend = F,
@@ -420,7 +422,6 @@ ht <- Heatmap(mat,
 
        )
 draw(ht, padding = unit(c(0, 0, 0, 250), "mm"), heatmap_legend_side = "top")
-
 dev.off()
 
 

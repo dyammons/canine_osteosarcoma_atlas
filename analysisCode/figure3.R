@@ -135,7 +135,7 @@ seu.obj <- dataVisUMAP(seu.obj = seu.obj.sub, outDir = "../output/s3/", outName 
 #######   begin t cell analysis   ########
 ##########################################
 
-#load metadata
+#load metadata -- see line 168 if loading in data from Zenodo
 seu.obj <- readRDS(file = "../output/s3/tcell_2500Feats_qcFiltered_res0.6_dims40_dist0.3_neigh50_S3.rds")
 seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/refColz.csv", groupBy = "orig.ident_2", metaAdd = "name")
 sorted_labels <- sort(unique(seu.obj$name))
@@ -161,6 +161,13 @@ seu.obj$majorID <- Idents(seu.obj)
 seu.obj$majorID <- factor(seu.obj$majorID, levels = c("CD4_naive","CD4_act","CD4_reg","CD4_fh",
                                                 "CD8_eff", "CD8_ex", "CD8_SPP1_hi",
                                                 "T_IFN","T_cycling","NK"))
+
+#export the annotated dataset for Zenodo - no need to run
+# saveRDS(seu.obj, "../output/s3/tcell_subset_annotated.rds")
+
+### If loading from Zenodo repository, can start here
+# seu.obj <- readRDS("../output/s3/tumor_subset_annotated.rds")
+# outName <- "tCells_naive6"
 
 
 ### Fig extra = QC check

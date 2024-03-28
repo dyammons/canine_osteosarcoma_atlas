@@ -1,28 +1,27 @@
 #!/usr/bin/Rscript
 
 ### Load custom functions & packages
-source("/pl/active/dow_lab/dylan/repos/K9-PBMC-scRNAseq/analysisCode/customFunctions.R")
-
+source("./customFunctions.R")
 
 ###################################
-### Human homolgy preprocessing ###
+### human homolgy preprocessing ###
 ###################################
 
 ### Process count maricies from Liu et. al, 2021 "Single-Cell Transcriptomics Reveals the Complexity of the Tumor Microenvironment of Treatment-Naive Osteosarcoma"
 ### https://doi.org/10.3389/fonc.2021.709210
 
 #load in their processed count matricies
-load10x(din = "./human_input/", dout = "./output/", outName = "human_naive6", testQC = F,
+load10x(din = "../human_input/", dout = "../output/", outName = "human_naive6", testQC = F,
        nFeature_RNA_high = 5500, nFeature_RNA_low = 200, percent.mt_high = 12.5, nCount_RNA_high = 75000, nCount_RNA_low = 100)
 
 #integrate data
-seu.obj <- sctIntegrate(din = "./output/s1/", outName = "human_naive_n6", vars.to.regress = c("percent.mt"), nfeatures = 2000)
+seu.obj <- sctIntegrate(din = "../output/s1/", outName = "human_naive_n6", vars.to.regress = c("percent.mt"), nfeatures = 2000)
 
 #check clustering resolution
-clusTree(seu.obj = seu.obj, dout = "./output/clustree/", outName = "naive_n6_12-5", test_dims = c(50,45,40,35,30,25), algorithm = 3, prefix = "integrated_snn_res.")
+clusTree(seu.obj = seu.obj, dout = "../output/clustree/", outName = "naive_n6_12-5", test_dims = c(50,45,40,35,30,25), algorithm = 3, prefix = "integrated_snn_res.")
 
 #dim reduction and visualization
-seu.obj <- dataVisUMAP(seu.obj = seu.obj, outDir = "./output/s3/", outName = "human_naive_n6", final.dims = 45, final.res = 0.8, stashID = "clusterID", 
+seu.obj <- dataVisUMAP(seu.obj = seu.obj, outDir = "../output/s3/", outName = "human_naive_n6", final.dims = 45, final.res = 0.8, stashID = "clusterID", 
                         algorithm = 3, prefix = "integrated_snn_res.", min.dist = 0.3, n.neighbors = 30, assay = "integrated", saveRDS = T,
                         features = c("PTPRC", "CD3E", "CD8A", "GZMA", 
                                      "IL7R", "ANPEP", "FLT3", "DLA-DRA", 
@@ -31,14 +30,13 @@ seu.obj <- dataVisUMAP(seu.obj = seu.obj, outDir = "./output/s3/", outName = "hu
 
 
 ##############################
-### Human homolgy analysis ###
+### human homolgy analysis ###
 ##############################
 
-
 #load in processed data
-seu.obj <- readRDS(file = "./human_output/s3/human_naive_n6_res0.8_dims45_dist0.3_neigh30_S3.rds")
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./all_celltype_human.csv", groupBy = "clusterID", metaAdd = "celltype.l1")
-seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./all_celltype_human.csv", groupBy = "clusterID", metaAdd = "celltype.l2")
+seu.obj <- readRDS(file = "../output/s3/human_naive_n6_res0.8_dims45_dist0.3_neigh30_S3.rds")
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/all_celltype_human.csv", groupBy = "clusterID", metaAdd = "celltype.l1")
+seu.obj <- loadMeta(seu.obj = seu.obj, metaFile = "./metaData/all_celltype_human.csv", groupBy = "clusterID", metaAdd = "celltype.l2")
 ct.l1_human <- seu.obj$celltype.l1
 ct.l2_human <- seu.obj$celltype.l2
 outName <- "human_naive"
@@ -47,10 +45,10 @@ outName <- "human_naive"
 features <- c("nCount_RNA", "nFeature_RNA", "percent.mt")
 p <- prettyFeats(seu.obj = seu.obj, nrow = 1, ncol = 3, features = features, 
                  color = "black", order = F, pt.size = 0.0000001, title.size = 18)
-ggsave(paste("./output/", outName, "/", outName, "_QC_feats.png", sep = ""), width = 9, height = 3)
+ggsave(paste("../output/", outName, "/", outName, "_QC_feats.png", sep = ""), width = 9, height = 3)
 
 #generate violin plots
-vilnPlots(seu.obj = seu.obj, groupBy = "clusterID", numOfFeats = 24, outName = "human_naive_6", outDir = "./output/viln/allCells/", outputGeneList = T, filterOutFeats = c("^MT-", "^RPL", "^ENSCAF", "^RPS"), assay = "RNA", 
+vilnPlots(seu.obj = seu.obj, groupBy = "clusterID", numOfFeats = 24, outName = "human_naive_6", outDir = "../output/viln/allCells/", outputGeneList = T, filterOutFeats = c("^MT-", "^RPL", "^ENSCAF", "^RPS"), assay = "RNA", 
                       min.pct = 0.25, only.pos = T
                      )
 
@@ -62,7 +60,7 @@ features <- c("PTPRC", "CD3E", "GZMB", "HLA-DRA",
 
 p <- prettyFeats(seu.obj = seu.obj, nrow = 3, ncol = 4, features = features, 
                  color = "black", order = F, pt.size = 0.0000001, title.size = 18)
-ggsave(paste("./output/", outName, "/", outName, "_key_feats.png", sep = ""), width = 15, height = 9)
+ggsave(paste("../output/", outName, "/", outName, "_key_feats.png", sep = ""), width = 15, height = 9)
 
 
 ### Fig extra: Create raw UMAP
@@ -75,7 +73,7 @@ pi <- DimPlot(seu.obj,
               shuffle = TRUE
 )
 pi <- cusLabels(plot = pi, shape = 21, size = 8, alpha = 0.8)
-ggsave(paste("./output/", outName, "/", outName, "_raw_UMAP.png", sep = ""), width = 10, height = 7)
+ggsave(paste("../output/", outName, "/", outName, "_raw_UMAP.png", sep = ""), width = 10, height = 7)
 
 
 ### Fig extra: Create UMAP by celltype.l2
@@ -90,7 +88,7 @@ pi <- DimPlot(seu.obj,
 )
 pi <- formatUMAP(plot = pi) #+ NoLegend() + theme(axis.title = element_blank(),
                             #                     panel.border = element_blank())
-ggsave(paste("./output/", outName, "/", outName, "_UMAPbycelltype_l2.png", sep = ""), width = 10, height = 7)
+ggsave(paste("../output/", outName, "/", outName, "_UMAPbycelltype_l2.png", sep = ""), width = 10, height = 7)
 
 
 ### Fig extra: Create UMAP by sample
@@ -104,7 +102,7 @@ pi <- DimPlot(seu.obj,
 )
 
 pi <- formatUMAP(plot = pi)
-ggsave(paste("./output/", outName, "/", outName, "_UMAPbySample.png", sep = ""), width = 10, height = 7)
+ggsave(paste("../output/", outName, "/", outName, "_UMAPbySample.png", sep = ""), width = 10, height = 7)
 
 
 ### Fig extra: Complete module scoring as in original article
@@ -130,11 +128,11 @@ ecScores <- majorDot(seu.obj = seu.obj, groupBy = "clusterID",
                     ) + theme(legend.position = "bottom",
                               axis.title.y = element_blank(),
                               plot.margin = margin(7, 7, 0, 24, "pt"))
-ggsave(paste("./output/", outName, "/", outName, "_dotPlot_ecScores.png", sep = ""), width = 6,height=6)
+ggsave(paste("../output/", outName, "/", outName, "_dotPlot_ecScores.png", sep = ""), width = 6,height=6)
 
 p <- prettyFeats(seu.obj = seu.obj, nrow = 3, ncol = 4, features = features, 
                  color = "black", order = F, pt.size = 0.0000001, title.size = 18)
-ggsave(paste("./output/", outName, "/", outName, "_modulez.png", sep = ""), width = 15, height = 9)
+ggsave(paste("../output/", outName, "/", outName, "_modulez.png", sep = ""), width = 15, height = 9)
 
 
 ### Fig supp 6: IHC marker screen in human data
@@ -143,11 +141,9 @@ seu.obj <- subset(seu.obj,
                   celltype.l1 ==  "Macrophage" | celltype.l1 ==  "Osteoclast" | celltype.l1 ==  "DC")
 
 seu.obj$celltype.l2 <- droplevels(seu.obj$celltype.l2)
-seu.obj$celltype.l2 <- factor(seu.obj$celltype.l2, levels = c("CD14_monocyte", "NR4A3_Macrophage","TXNIP_Macrophage","FABP5_Macrophage","IFN-TAM","Pre-OC","Mature-OC","cDC2","pDC"))
+seu.obj$celltype.l2 <- factor(seu.obj$celltype.l2, levels = c("CD14_TIM", "NR4A3_TAM","TXNIP_TAM","FABP5_TAM","IFN-TAM","preOC","Mature_OC","cDC2","pDC"))
 
-features <- c("CD68","CD163","AIF1","MSR1","KIT")
-
-
+features <- c("CD68","CD163","AIF1","MSR1")
 color <- "black"
 pi <- VlnPlot(
     object = seu.obj,
@@ -168,18 +164,16 @@ pi <- VlnPlot(
 pi <- pi + theme(axis.title.y = element_blank(),
         strip.text.y.left = element_text(angle=0, size = 1),
         strip.placement = "outside")
-
-ggsave(paste("./output/", outName, "/", outName, "_viln_IHC.png", sep = ""), height = 4)
+ggsave(paste("../output/", outName, "/", outName, "_viln_IHC.png", sep = ""), height = 4)
 
 
 ################################
 ### Integrate human with dog ###
 ################################
 
-
 #read in processed objects
-seu.obj.human <- readRDS(file = "./human_output/s3/human_naive_n6_res0.8_dims45_dist0.3_neigh30_S3.rds")
-seu.obj.dog <- readRDS(file = "./output/s3/canine_naive_n6_annotated.rds")
+seu.obj.human <- readRDS(file = "../output/s3/human_naive_n6_res0.8_dims45_dist0.3_neigh30_S3.rds")
+seu.obj.dog <- readRDS(file = "../output/s3/canine_naive_n6_annotated.rds")
 
 cnts <- seu.obj.dog@assays$RNA@counts
 cnts <- orthogene::convert_orthologs(gene_df = cnts,
@@ -197,16 +191,16 @@ seu.obj.dog <- CreateSeuratObject(cnts, project = "humanConvert", assay = "RNA",
 
 #merge then integrate
 seu.obj.crossSpecies <- merge(seu.obj.dog,seu.obj.human)
-seu.obj <- indReClus(seu.obj = seu.obj.crossSpecies, outDir = "./output/s2/", subName = "cross_Species_3000", preSub = T, nfeatures = 3000,
+seu.obj <- indReClus(seu.obj = seu.obj.crossSpecies, outDir = "../output/s2/", subName = "cross_Species_3000", preSub = T, nfeatures = 3000,
                       vars.to.regress = "percent.mt"
                        )
 
 #check ideal clustering parameteres
-seu.obj <- readRDS(file = "./output/s2/cross_Species_3000_S2.rds")
-clusTree(seu.obj = seu.obj, dout = "./output/clustree/", outName = "cross_Species_3000", test_dims = c(50,45,40,35,30,25), algorithm = 3, prefix = "integrated_snn_res.")
+seu.obj <- readRDS(file = "../output/s2/cross_Species_3000_S2.rds")
+clusTree(seu.obj = seu.obj, dout = "../output/clustree/", outName = "cross_Species_3000", test_dims = c(50,45,40,35,30,25), algorithm = 3, prefix = "integrated_snn_res.")
 
 #complete dim reduction and visulaization
-seu.obj <- dataVisUMAP(seu.obj = seu.obj, outDir = "./output/s3/", outName = "cross_Species_3000", final.dims = 45, final.res = 0.6, stashID = "clusterID_2", 
+seu.obj <- dataVisUMAP(seu.obj = seu.obj, outDir = "../output/s3/", outName = "cross_Species_3000", final.dims = 45, final.res = 0.6, stashID = "clusterID_2", 
                         algorithm = 3, prefix = "integrated_snn_res.", min.dist = 0.3, n.neighbors = 30, assay = "integrated", saveRDS = T,
                         features = c("PTPRC", "CD3E", "CD8A", "GZMA", 
                                      "IL7R", "ANPEP", "FLT3", "DLA-DRA", 
@@ -218,17 +212,16 @@ seu.obj <- dataVisUMAP(seu.obj = seu.obj, outDir = "./output/s3/", outName = "cr
 ### Analyze integrated data ###
 ###############################
 
-
 #load in integrated dataset
-seu.obj <- readRDS(file = "./output/s3/cross_Species_3000_res0.6_dims45_dist0.3_neigh30_S3.rds")
+seu.obj <- readRDS(file = "../output/s3/cross_Species_3000_res0.6_dims45_dist0.3_neigh30_S3.rds")
 seu.obj$cellSource <- ifelse(grepl("no_tx", seu.obj$orig.ident), "Canine", "Human")
 seu.obj$name <- ifelse(grepl("no_tx", seu.obj$orig.ident), seu.obj$name, seu.obj$orig.ident)
 outName <- "human_dog_naive"
 
 #bring annotations over to ensure they are up-to-date
-seu.obj.hu <- readRDS(file = "./human_output/s3/human_naive_n6_res0.8_dims45_dist0.3_neigh30_S3.rds")
-seu.obj.hu <- loadMeta(seu.obj = seu.obj.hu, metaFile = "./all_celltype_human.csv", groupBy = "clusterID", metaAdd = "celltype.l1")
-seu.obj.hu <- loadMeta(seu.obj = seu.obj.hu, metaFile = "./all_celltype_human.csv", groupBy = "clusterID", metaAdd = "celltype.l2")
+seu.obj.hu <- readRDS(file = "../output/s3/human_naive_n6_res0.8_dims45_dist0.3_neigh30_S3.rds")
+seu.obj.hu <- loadMeta(seu.obj = seu.obj.hu, metaFile = "./metaData/all_celltype_human.csv", groupBy = "clusterID", metaAdd = "celltype.l1")
+seu.obj.hu <- loadMeta(seu.obj = seu.obj.hu, metaFile = "./metaData/all_celltype_human.csv", groupBy = "clusterID", metaAdd = "celltype.l2")
 
 #extract cell type anotations by barcode for human
 ct.l1_human <- seu.obj.hu$celltype.l1[!is.na(seu.obj.hu$celltype.l1)]
@@ -242,7 +235,7 @@ rm(seu.obj.hu)
 gc()
 
 #load in annotated canine data to extract values
-seu.obj.k9 <- readRDS(file = "./output/s3/canine_naive_n6_annotated.rds")
+seu.obj.k9 <- readRDS(file = "../output/s3/canine_naive_n6_annotated.rds")
 
 #extract cell type anotations by barcode for canine
 ct.l1_can <- seu.obj.k9$celltype.l1[!is.na(seu.obj.k9$celltype.l1)]
@@ -273,7 +266,7 @@ pi <- DimPlot(seu.obj,
               na.value = NA
 )
 pi <- formatUMAP(plot = pi) + theme(legend.position = "top")
-ggsave(paste("./output/", outName, "/", outName, "_raw_UMAP_test.png", sep = ""), width = 10, height = 10)
+ggsave(paste("../output/", outName, "/", outName, "_raw_UMAP_test.png", sep = ""), width = 10, height = 10)
 
 
 ### Fig 9a: complete hierarchical clustering
@@ -302,7 +295,7 @@ ggtree(as.phylo(hc)) + geom_tiplab(size = 6) + xlim(NA, 4) + geom_hilight(data=n
                                                    ) + scale_fill_manual(values=c("lightblue","lightgrey")
                                                                         ) + geom_cladelab(data=node.df, mapping=aes(node=node, label=cellType), align=TRUE, angle=270, offset = 0.75, hjust = 0.5, vjust = 0,fontsize = 5) +  NoLegend()
 
-ggsave(paste0("./output/", outName, "/", outName, "_ggTree.png"), width = 9, height = 8, scale = 2) 
+ggsave(paste0("../output/", outName, "/", outName, "_ggTree.png"), width = 9, height = 8, scale = 2) 
 
 
 ### Fig 9b-d: Comare gene expression between clusters
@@ -313,21 +306,21 @@ seu.obj.hu <- subset(seu.obj, subset = cellSource == "Human")
 #calculate defining features of each human cluster
 seu.obj.hu$celltype.l2_merged <- droplevels(seu.obj.hu$celltype.l2_merged)
 vilnPlots(seu.obj = seu.obj.hu, inFile = NULL, groupBy = "celltype.l2_merged", numOfFeats = 24, outName = "human",
-                      outDir = "./output/viln/", outputGeneList = T, filterOutFeats = c("^MT-", "^RPL", "^RPS"), assay = "RNA", 
+                      outDir = "../output/viln/", outputGeneList = T, filterOutFeats = c("^MT-", "^RPL", "^RPS"), assay = "RNA", 
                       min.pct = 0.25, only.pos = T, resume = F, resumeFile = NULL, returnViln = F
                      )
 
 #complete DGE analysis between clusters
 btwnClusDEG(seu.obj = seu.obj, groupBy = "celltype.l2", idents.1 = "Fibroblast", idents.2 = "Endothelial", bioRep = "orig.ident",padj_cutoff = 0.05, lfcCut = 0.58, 
-                        minCells = 25, outDir = paste0("./output/", outName, "/"), title = "hu_fib_vs_endo", idents.1_NAME = "hu_fib", idents.2_NAME = "hu_endo", returnVolc = F, doLinDEG = F, paired = T, addLabs = NULL, lowFilter = T, dwnSam = F
+                        minCells = 25, outDir = paste0("../output/", outName, "/"), title = "hu_fib_vs_endo", idents.1_NAME = "hu_fib", idents.2_NAME = "hu_endo", returnVolc = F, doLinDEG = F, paired = T, addLabs = NULL, lowFilter = T, dwnSam = F
                     )
 
 btwnClusDEG(seu.obj = seu.obj, groupBy = "celltype.l2", idents.1 = "Mature-OC", idents.2 = "CD14_monocyte", bioRep = "orig.ident",padj_cutoff = 0.05, lfcCut = 0.58, 
-                        minCells = 25, outDir = paste0("./output/", outName, "/"), title = "hu_matOC_vs_cd14mono", idents.1_NAME = "hu_matOC", idents.2_NAME = "hu_cd14mono", returnVolc = F, doLinDEG = F, paired = T, addLabs = NULL, lowFilter = T, dwnSam = F
+                        minCells = 25, outDir = paste0("../output/", outName, "/"), title = "hu_matOC_vs_cd14mono", idents.1_NAME = "hu_matOC", idents.2_NAME = "hu_cd14mono", returnVolc = F, doLinDEG = F, paired = T, addLabs = NULL, lowFilter = T, dwnSam = F
                     )
 
 btwnClusDEG(seu.obj = seu.obj, groupBy = "celltype.l2", idents.1 = "pDC", idents.2 = "cDC2", bioRep = "orig.ident",padj_cutoff = 0.05, lfcCut = 0.58, 
-                        minCells = 5, outDir = paste0("./output/", outName, "/"), title = "hu_pDC_vs_cDC2", idents.1_NAME = "hu_pDC", idents.2_NAME = "hu_cDC2", returnVolc = F, doLinDEG = F, paired = T, addLabs = NULL, lowFilter = T, dwnSam = F
+                        minCells = 5, outDir = paste0("../output/", outName, "/"), title = "hu_pDC_vs_cDC2", idents.1_NAME = "hu_pDC", idents.2_NAME = "hu_cDC2", returnVolc = F, doLinDEG = F, paired = T, addLabs = NULL, lowFilter = T, dwnSam = F
                     )
 
 #subset on the canine cells only and extract required data
@@ -335,55 +328,55 @@ seu.obj.k9 <- subset(seu.obj, subset = cellSource == "Canine")
 
 #calculate defining features of each canine cluster
 vilnPlots(seu.obj = seu.obj.k9, inFile = NULL, groupBy = "celltype.l2", numOfFeats = 24, outName = "canine",
-                      outDir = "./output/viln/", outputGeneList = T, filterOutFeats = c("^MT-", "^RPL", "^RPS"), assay = "RNA", 
+                      outDir = "../output/viln/", outputGeneList = T, filterOutFeats = c("^MT-", "^RPL", "^RPS"), assay = "RNA", 
                       min.pct = 0.25, only.pos = T, resume = F, resumeFile = NULL
                      )
 
 btwnClusDEG(seu.obj = seu.obj.k9, groupBy = "celltype.l2", idents.1 = "Fibroblast", idents.2 = "Endothelial cell", bioRep = "orig.ident",padj_cutoff = 0.05, lfcCut = 0.58, 
-                        minCells = 25, outDir = paste0("./output/", outName, "/"), title = "can_fib_vs_endo", idents.1_NAME = "can_fib", idents.2_NAME = "can_endo", returnVolc = F, doLinDEG = F, paired = T, addLabs = NULL, lowFilter = T, dwnSam = F
+                        minCells = 25, outDir = paste0("../output/", outName, "/"), title = "can_fib_vs_endo", idents.1_NAME = "can_fib", idents.2_NAME = "can_endo", returnVolc = F, doLinDEG = F, paired = T, addLabs = NULL, lowFilter = T, dwnSam = F
                     )
 
 btwnClusDEG(seu.obj = seu.obj.k9, groupBy = "celltype.l2", idents.1 = "Mature_OC", idents.2 = "TIM", bioRep = "orig.ident",padj_cutoff = 0.05, lfcCut = 0.58, 
-                        minCells = 25, outDir = paste0("./output/", outName, "/"), title = "can_matOC_vs_tim", idents.1_NAME = "can_matOC", idents.2_NAME = "can_tim", returnVolc = F, doLinDEG = F, paired = T, addLabs = NULL, lowFilter = T, dwnSam = F
+                        minCells = 25, outDir = paste0("../output/", outName, "/"), title = "can_matOC_vs_tim", idents.1_NAME = "can_matOC", idents.2_NAME = "can_tim", returnVolc = F, doLinDEG = F, paired = T, addLabs = NULL, lowFilter = T, dwnSam = F
                     )
 
 btwnClusDEG(seu.obj = seu.obj.k9, groupBy = "celltype.l2", idents.1 = "pDC", idents.2 = "cDC2", bioRep = "orig.ident",padj_cutoff = 0.05, lfcCut = 0.58, 
-                        minCells = 5, outDir = paste0("./output/", outName, "/"), title = "can_pDC_vs_cDC2", idents.1_NAME = "can_pDC", idents.2_NAME = "can_cDC2", returnVolc = F, doLinDEG = F, paired = T, addLabs = NULL, lowFilter = T, dwnSam = F
+                        minCells = 5, outDir = paste0("../output/", outName, "/"), title = "can_pDC_vs_cDC2", idents.1_NAME = "can_pDC", idents.2_NAME = "can_cDC2", returnVolc = F, doLinDEG = F, paired = T, addLabs = NULL, lowFilter = T, dwnSam = F
                     )
 
 #plot Fig 9b-d using the output of the above contrasts
-p <- crossSpeciesDEG(pwdTOspecies1 = "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/human_naive/hu_fib_vs_hu_endo_all_genes.csv", 
-                     pwdTOspecies2 = "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/human_dog_naive/can_fib_vs_can_endo_all_genes.csv", 
+p <- crossSpeciesDEG(pwdTOspecies1 = "../output/human_naive/hu_fib_vs_hu_endo_all_genes.csv", 
+                     pwdTOspecies2 = "../output/human_dog_naive/can_fib_vs_can_endo_all_genes.csv", 
                      species1 = "Human", species2 = "Canine", cONtrast = c("fibroblast","endothelial"),
                      nlab = 10, nlab_axis = 2, colUp = "red", colDwn = "blue", seed = 12,
                      overlapGenes = overlapGenes, saveGeneList = T
                     )
-ggsave(paste("./output/", outName, "/", outName, "_pSigned_cfibVend.png", sep = ""), width = 7,height=5)
+ggsave(paste("../output/", outName, "/", outName, "_pSigned_cfibVend.png", sep = ""), width = 7,height=5)
 
-p <- crossSpeciesDEG(pwdTOspecies1 = "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/human_naive/hu_matOC_vs_hu_cd14mono_all_genes.csv", 
-                     pwdTOspecies2 = "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/human_dog_naive/can_matOC_vs_can_tim_all_genes.csv", 
+p <- crossSpeciesDEG(pwdTOspecies1 = "../output/human_naive/hu_matOC_vs_hu_cd14mono_all_genes.csv", 
+                     pwdTOspecies2 = "../output/human_dog_naive/can_matOC_vs_can_tim_all_genes.csv", 
                      species1 = "Human", species2 = "Canine", cONtrast = c("mature OC", "TIM"),
                      nlab = 10, nlab_axis = 2, colUp = "red", colDwn = "blue", seed = 12,
                      overlapGenes = overlapGenes, saveGeneList = T 
                     )
-ggsave(paste("./output/", outName, "/", outName, "_pSigned_cOCvTIM.png", sep = ""), width = 7,height=5)
+ggsave(paste("../output/", outName, "/", outName, "_pSigned_cOCvTIM.png", sep = ""), width = 7,height=5)
 
-p <- crossSpeciesDEG(pwdTOspecies1 = "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/human_naive/hu_pDC_vs_hu_cDC2_all_genes.csv", 
-                     pwdTOspecies2 = "/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/human_dog_naive/can_pDC_vs_can_cDC2_all_genes.csv", 
+p <- crossSpeciesDEG(pwdTOspecies1 = "../output/human_naive/hu_pDC_vs_hu_cDC2_all_genes.csv", 
+                     pwdTOspecies2 = "../output/human_dog_naive/can_pDC_vs_can_cDC2_all_genes.csv", 
                      species1 = "Human", species2 = "Canine", cONtrast = c("pDC", "cDC2"), seed = 666,
                      nlab = 10, nlab_axis = 2, colUp = "red", colDwn = "blue",
                      overlapGenes = overlapGenes,saveGeneList = T,
                      hjustvar = c(1,0.85,0,0.5,1,0,1,0),
                      vjustvar = c(0.75,1,0.5,0,0,1,1,0)
                     )
-ggsave(paste("./output/", outName, "/", outName, "_pSigned_cpDCvcDC2.png", sep = ""), width = 7,height=5)
+ggsave(paste("../output/", outName, "/", outName, "_pSigned_cpDCvcDC2.png", sep = ""), width = 7,height=5)
 
 
 ### Supplemental fig - jaccard similarity
 
 #load in cell type gene signatures
-dog.df <- read.csv("/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/viln/canine_gene_list.csv")
-human.df <- read.csv("/pl/active/dow_lab/dylan/k9_OS_tumor_scRNA/analysis/output/viln/human_gene_list.csv")
+dog.df <- read.csv("../output/viln/canine_gene_list.csv")
+human.df <- read.csv("../output/viln/human_gene_list.csv")
 
 #check the data quality
 dog.df %>% group_by(cluster) %>% summarize(nn = n()) %>% summarize(min = min(nn))
@@ -426,7 +419,7 @@ res1 <- res1[match(rowTarg, rownames(res1)),]
 res1 <- res1[ ,match(colTarg, colnames(res1))]   
        
 #plot the data
-png(file = paste0("./output/", outName, "/", outName, "_jaccard.png"), width=4000, height=4000, res=400)
+png(file = paste0("../output/", outName, "/", outName, "_jaccard.png"), width=4000, height=4000, res=400)
 par(mfcol=c(1,1))         
 ht <- Heatmap(t(res1), #name = "mat", #col = col_fun,
               name = "Jaccard similarity index",

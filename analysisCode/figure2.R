@@ -99,7 +99,7 @@ seu.obj <- dataVisUMAP(seu.obj = seu.obj.sub, outDir = "../output/s3/", outName 
 #######   Begin tumor/fibroblast analysis   ########
 ####################################################
 
-#load in data
+#load in data -- see line 135 if loading in data from Zenodo
 seu.obj <- readRDS(file = "../output/s3/tumor_QCfiltered_2_3000_res0.5_dims40_dist0.5_neigh50_S3.rds")
 sorted_labels <- paste(sort(as.integer(levels(seu.obj$clusterID_sub))))
 seu.obj$clusterID_sub <- factor(seu.obj$clusterID_sub, levels = sorted_labels)
@@ -128,6 +128,13 @@ seu.obj <- RenameIdents(seu.obj, c("0" = "Osteoblast_1 (c0)", "1" = "Osteoblast_
                                    "8" = "Osteoblast_cycling_4 (c8)", "9" = "IFN-osteoblast (c9)")
                        )
 seu.obj$majorID_subWclus <- Idents(seu.obj)
+
+#export the annotated dataset for Zenodo - no need to run
+saveRDS(seu.obj, "../output/s3/tumor_subset_annotated.rds")
+
+### If loading from Zenodo repository, can start here
+# seu.obj <- readRDS("../output/s3/tumor_subset_annotated.rds")
+# outName <- "tumor_naive6"
 
 
 ### Fig extra: Create violin plots for cell ID
