@@ -1,4 +1,4 @@
-## Instructions to obtain processed data  
+## Instructions to obtain processed Seurat objects  
 
 The processed data are available on Zenodo and can be downloaded by visiting the [project repository web page](https://zenodo.org/records/10666969).
 Once on the web page scroll down and select download for the file(s) of interest.
