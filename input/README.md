@@ -54,7 +54,7 @@ The count matrices were renamed when uploaded to NCBI. If you wish to use the an
 
 To rearrange the file structure for easy loading into Seurat, follow the code chunks below (alternatively, the files can be manually rearrange/renamed):
 
-First, get the provided `deCoder.tsv` file in the directory you wish to house the input files then create a file called `rearrange.sh`.
+First, get the provided `deCoder.tsv` (TO DO: add deCoder.tsv !!) file in the directory you wish to house the input files then create a file called `rearrange.sh`.
 
 ```sh
 #pull down deCoder.tsv
