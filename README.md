@@ -4,10 +4,10 @@
 
 This GitHub repository contains all the analysis code used in, "Single-cell RNA sequencing reveals the cellular and molecular composition of treatment-naïve primary canine osteosarcoma tumors"
 
-The manuscript has been accepted to _Communications Biology_ and will be published shortly.
+If you use our raw/processed data, extract data using the UCSC Cell Browser portal, or use portions of our code in your analysis, please cite:
+> Ammons, D.T., Hopkins, L.S., Cronise, K.E., Kurihara, J., Regan, D.P. and Dow, S., 2024. Single-cell RNA sequencing reveals the cellular and molecular heterogeneity of treatment-naïve primary osteosarcoma in dogs. Communications Biology, 7(1), p.496. https://doi.org/10.1038/s42003-024-06182-w
 
-A pre-print is available at:
-> https://www.researchsquare.com/article/rs-3232360/v1
+Interested in more canine scRNA data? Check out our [healthy and OS canine PBMC atlas](https://www.frontiersin.org/journals/immunology/articles/10.3389/fimmu.2023.1162700/full) and the [associated GitHub page](https://github.com/dyammons/Canine_Leukocyte_scRNA).
 
 ## Repository goals: 
 - Provide a resource to make the data generated from this project accessible
@@ -19,15 +19,19 @@ If you have any questions or concerns, please submit an issue via GitHub and/or 
 ## File structure:
 - [:file\_folder: input](/input) contains relevant metadata files and instructions for obtaining data associated with this study
 - [:file\_folder: analysisCode](/analysisCode) contains the analysis code (largely separated in scripts by figure) and R source file containing custom functions used to complete data analysis
+- [:file\_folder: output](/output) contains the expected output directory structure is completing a reproducible run
 
 
 ## Supplemental data and potential uses:
 1. [Browse the data](#browse-the-complete-annotated-dataset)
 1. [Cell type annotations](#cell-type-annotations-with-defining-markers)
-1. [Reference Mapping](#using-the-data-to-complete-reference-mapping)
+1. [Reference Mapping to scRNA data](#using-the-data-to-complete-reference-mapping-scrna-seq)
+1. [Reference Mapping to spatial data](#using-the-data-to-complete-reference-mapping-spatial-transcriptomics)
 1. [GSEA using dataset](#gene-set-enrichment-analysis)
 1. [Module scoring](#module-scoring)
 1. [Deconvoloution](#deconvoloution-of-bulkRNA-seq-data)
+
+<br>
 
 ### Browse the complete annotated dataset
 
@@ -37,6 +41,8 @@ Using the portal you can explore feature expression as well as obtain the transc
 Link to the dataset: https://cells.ucsc.edu/?ds=canine-os-atlas
 
 Link to UCSC Cell Browser documentation: https://cellbrowser.readthedocs.io/en/master/
+
+<br>
 
 ### Cell type annotations with defining markers
 
@@ -99,22 +105,22 @@ Cell markers lists were curated by evaluating the top 50 defining features (iden
 </p>
 </details>
 
-### Using the data to complete reference mapping
+<br>
+
+### Using the data to complete reference mapping (scRNA-seq)
 Reference mapping is useful tool to facilitate the identification of cell types in single cell datasets. The approach described here uses Seurat functions to identify anchors between a query dataset (external/personal data) and the reference datasets generated in this study.
 
-NOTE: this is designed to be run with Seurat v4, but can be modified to run with a query dataset processed using Seurat v5.
-
-Before running the reference mapping code, a Seurat object needs to be preprocessed and stored as an varible named `seu.obj`.  
-
-The processed Seurat object to be loaded in as `reference` can be obtained by following the instructions in [:file\_folder: input](/input).
+Before running the reference mapping code, a query Seurat object needs to be preprocessed and stored as an varible named `seu.obj`. Additionally, the processed `reference` Seurat object needs to be downloaded and loaded into the R session. Instructions to obtain the reference dataset can be found in [:file\_folder: input](/input).
 
 ```r
-### Reference mapping using Seurat v4
+### Reference mapping using Seurat
+# NOTE: this was designed to be run with Seurat v4, but should run with a query dataset processed using Seurat v5.
+# Please let us know if it is not working for your application.
 
 #set path location where the downloaded reference file is saved
 reference <- readRDS(file = "./final_dataSet.rds")
 
-#prepare the reference
+#prepare the reference -- NOTE: run this code block ONLY if the query data was SCT normalized, otherwise skip step
 reference[['integrated']] <- as(object = reference[['integrated']] , Class = "SCTAssay")
 DefaultAssay(reference) <- "integrated"
 
@@ -122,19 +128,17 @@ DefaultAssay(reference) <- "integrated"
 anchors <- FindTransferAnchors(
     reference = reference,
     query = seu.obj,
-    normalization.method = "SCT",
+    normalization.method = "SCT", #if using log normlaized data, change to "LogNormalize"
     reference.reduction = "pca",
-    dims= 1:50
+    dims = 1:30
 )
 
-#FYI: this is a computationally intense step
-#select meta.data slot to use for label transfer
-#can change refdata argument to use alternate cell type labels 
-#(i.e., refdata = reference$celltype.l1)
+# FYI: this is a computationally intense step
+# can change refdata argument to use alternate cell type labels (i.e., refdata = reference$celltype.l1)
 predictions <- TransferData(
     anchorset = anchors, 
     refdata = reference$celltype.l3,
-    dims = 1:50
+    dims = 1:30
 )
 
 #store the metadata values
@@ -151,6 +155,63 @@ pi <- DimPlot(seu.obj,
 )
 ggsave("./output/referenceMap.png", width = 7, height = 7)
 ```
+
+<br>
+
+### Using the data to complete reference mapping (spatial transcriptomics)
+
+In addition to transfering labels to other single-cell datasets, the data can also be integrated with canine spatial transcriptomics data. The process is very similar to the above approach, but uses the `Spatial` assay and stores the results in a new assay named `predictions`.
+
+The code below assumes `seu.obj` is external/personal data that was preprocessed using a log normalization (+/- integration) workflow.
+
+```r
+### Integration with spatial visium data
+# NOTE: this was designed to be run with Seurat v5.1.0
+# Please let us know if it is not working for your application!
+
+#import processed data
+reference <- readRDS(file = "./final_dataSet.rds")
+
+#transfer annotations from canine OS atlas
+ref.anchors <- FindTransferAnchors(
+    reference = reference,
+    query = seu.obj,
+    query.assay = "Spatial",
+    dims = 1:30,
+    reference.reduction = "pca", 
+    features = rownames(seu.obj)[rownames(seu.obj) %in% rownames(reference)]
+)
+predictions.assay <- TransferData(
+    anchorset = ref.anchors, 
+    refdata = reference$celltype.l3, 
+    prediction.assay = TRUE,
+    dims = 1:30
+)
+
+#store predicted cell types in a new assay for easy plotting
+seu.obj[["predictions"]] <- predictions.assay
+
+#generate and save the image
+pi <- DimPlot(seu.obj, 
+              reduction = "umap", 
+              group.by = "predicted.id",
+              pt.size = 0.25,
+              label = T,
+              label.box = T,
+              shuffle = F
+)
+ggsave("../output/referenceMap.png", width = 10, height = 7)
+
+#plot and save the label transfer on the tissues!!!
+DefaultAssay(seu.obj) <- "predictions"
+lapply(rownames(seu.obj), function(x){
+    p <- SpatialFeaturePlot(seu.obj, features = x, pt.size.factor = 1.6, ncol = 7, crop = TRUE) & 
+    theme(legend.title = element_blank()) & patchwork::plot_annotation(title = x)
+    ggsave(paste0("../output/", x, "_slide_visium.png"), height = 7, width = 12)    
+})
+```
+
+<br>
 
 ### Gene set enrichment analysis
 
@@ -228,6 +289,8 @@ plot <- ggplot(data = cellCalls, mapping = aes_string(x = 'cluster', y = 'ID')) 
 ggsave("gsea_scRNA_terms.png", width = 6, height = 4)
 ```
 
+<br>
+
 ### Module scoring
 
 Module scoring is a supplemental approach that can be applied to single cell datasets with the goal of providing further insights into cell identities. The approach described below uses the Seurat function `AddModuleScore` and the gene lists presented above (and in supplemental data of our associated manuscript). 
@@ -260,6 +323,8 @@ ecScores <- majorDot(seu.obj = seu.obj, groupBy = "clusterID_sub", scale = T,
 
 ggsave(paste("./output/", outName, "/", outName, "_dots_celltypes.png", sep = ""),width = 10,height=6)
 ```
+
+<br>
 
 ### Deconvoloution of bulk RNA sequencing data
 
