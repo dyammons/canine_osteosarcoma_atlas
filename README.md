@@ -299,7 +299,7 @@ The concept of the `AddModuleScore` function is similar to GSEA, but also distin
 
 ```r
 #load in the reference file from supplemental data
-ref.df <- read.csv("supplementalData_4.csv", header = T) #check file name is correct
+ref.df <- read.csv("supplementalData_2.csv", header = T) #check file name is correct
 
 #organize the data
 modulez <- split(ref.df$gene, ref.df$cellType_l2)
